@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="#2a2a2a"/>
+  <!-- Truck body -->
+  <rect x="200" y="280" width="280" height="120" rx="8" fill="none" stroke="#f20c2d" stroke-width="4"/>
+  <!-- Truck cab -->
+  <path d="M480 320 L540 320 L560 360 L560 400 L480 400 Z" fill="none" stroke="#f20c2d" stroke-width="4"/>
+  <!-- Windshield -->
+  <line x1="500" y1="330" x2="540" y2="330" stroke="#f20c2d" stroke-width="3"/>
+  <line x1="540" y1="330" x2="550" y2="360" stroke="#f20c2d" stroke-width="3"/>
+  <!-- Wheels -->
+  <circle cx="280" cy="400" r="28" fill="none" stroke="#f20c2d" stroke-width="4"/>
+  <circle cx="280" cy="400" r="12" fill="none" stroke="#f20c2d" stroke-width="2"/>
+  <circle cx="520" cy="400" r="28" fill="none" stroke="#f20c2d" stroke-width="4"/>
+  <circle cx="520" cy="400" r="12" fill="none" stroke="#f20c2d" stroke-width="2"/>
+  <!-- Ground line -->
+  <line x1="150" y1="428" x2="650" y2="428" stroke="#555" stroke-width="2"/>
+  <!-- Label -->
+  <text x="400" y="520" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#888">Service Image</text>
+</svg>

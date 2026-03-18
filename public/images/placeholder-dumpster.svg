@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="#2a2a2a"/>
+  <!-- Dumpster body (trapezoid) -->
+  <path d="M230 250 L570 250 L540 420 L260 420 Z" fill="none" stroke="#f20c2d" stroke-width="4"/>
+  <!-- Dumpster lid -->
+  <path d="M220 250 L580 250 L575 230 L225 230 Z" fill="none" stroke="#f20c2d" stroke-width="4"/>
+  <!-- Lid handle -->
+  <rect x="380" y="218" width="40" height="12" rx="4" fill="none" stroke="#f20c2d" stroke-width="3"/>
+  <!-- Vertical ridges -->
+  <line x1="330" y1="255" x2="340" y2="415" stroke="#f20c2d" stroke-width="2.5"/>
+  <line x1="400" y1="255" x2="400" y2="415" stroke="#f20c2d" stroke-width="2.5"/>
+  <line x1="470" y1="255" x2="460" y2="415" stroke="#f20c2d" stroke-width="2.5"/>
+  <!-- Side slots -->
+  <rect x="280" y="310" width="60" height="20" rx="4" fill="none" stroke="#f20c2d" stroke-width="2.5"/>
+  <rect x="460" y="310" width="60" height="20" rx="4" fill="none" stroke="#f20c2d" stroke-width="2.5"/>
+  <!-- Ground line -->
+  <line x1="200" y1="420" x2="600" y2="420" stroke="#555" stroke-width="2"/>
+  <!-- Label -->
+  <text x="400" y="500" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#888">Dumpster Rental</text>
+</svg>
