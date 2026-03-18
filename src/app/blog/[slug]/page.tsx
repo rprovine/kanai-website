@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -97,18 +98,39 @@ export default async function BlogPostPage({ params }: Props) {
         </Container>
       </section>
 
-      {/* Content */}
-      <section className="py-24 sm:py-32">
+      {/* Featured Image */}
+      <section className="bg-white">
         <Container>
-          <div className="max-w-3xl">
+          <div className="max-w-4xl mx-auto -mt-8 relative">
+            <div className="relative aspect-[2/1] rounded-2xl overflow-hidden shadow-lg">
+              <Image
+                src={post.image}
+                alt={post.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 900px"
+                priority
+              />
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Content */}
+      <section className="py-16 sm:py-24">
+        <Container>
+          <div className="max-w-3xl mx-auto">
             <article
-              className="prose prose-lg prose-gray max-w-none
+              className="prose prose-lg max-w-none
                 prose-headings:font-bold prose-headings:text-brand-gray-900
-                prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                prose-p:text-brand-gray-700 prose-p:leading-relaxed
-                prose-li:text-brand-gray-700
-                prose-strong:text-brand-gray-900
-                prose-a:text-brand-red prose-a:no-underline hover:prose-a:underline"
+                prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:border-b prose-h2:border-brand-gray-100 prose-h2:pb-3
+                prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+                prose-p:text-brand-gray-600 prose-p:leading-[1.8]
+                prose-li:text-brand-gray-600 prose-li:leading-[1.8]
+                prose-ul:my-6 prose-ol:my-6
+                prose-strong:text-brand-gray-900 prose-strong:font-semibold
+                prose-a:text-brand-red prose-a:no-underline hover:prose-a:underline
+                prose-blockquote:border-brand-red prose-blockquote:bg-brand-gray-50 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:not-italic"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
