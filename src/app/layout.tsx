@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobilePhoneBar } from "@/components/layout/MobilePhoneBar";
 import { GTMScript } from "@/components/layout/GTMScript";
+import { FacebookPixel } from "@/components/layout/FacebookPixel";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
 
@@ -12,6 +13,13 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#f20c2d",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -29,6 +37,10 @@ export const metadata: Metadata = {
     "furniture removal Oahu",
     "estate cleanout Hawaii",
   ],
+  manifest: "/manifest.json",
+  icons: {
+    apple: "/images/apple-touch-icon.png",
+  },
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
@@ -50,6 +62,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased">
         <GTMScript />
+        <FacebookPixel />
         <Header />
         <main className="min-h-screen pt-16 md:pt-20 pb-14 lg:pb-0">{children}</main>
         <Footer />
