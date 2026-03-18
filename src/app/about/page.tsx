@@ -14,7 +14,7 @@ export const metadata: Metadata = generatePageMetadata({
 export default function AboutPage() {
   return (
     <>
-      <section className="bg-black text-white py-20 md:py-28">
+      <section className="bg-black text-white pt-32 md:pt-40 pb-16 md:pb-20">
         <Container>
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -27,7 +27,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <div className="max-w-3xl">
             <h2 className="text-3xl font-bold mb-6">Our Story</h2>
@@ -53,7 +53,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="bg-brand-gray-50 py-16 md:py-24">
+      <section className="bg-brand-gray-50 py-24 sm:py-32">
         <Container>
           <h2 className="text-3xl font-bold mb-12 text-center">Our Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -80,7 +80,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
@@ -98,7 +98,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="bg-brand-gray-950 text-white py-16 md:py-24">
+      <section className="bg-brand-gray-950 text-white py-24 sm:py-32">
         <Container>
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold mb-4">Ready to Work With Us?</h2>

@@ -2,9 +2,10 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Button } from "@/components/ui/Button";
 import { DumpsterQuoteForm } from "@/components/forms/DumpsterQuoteForm";
-import { generatePageMetadata, generateBreadcrumbSchema } from "@/lib/metadata";
+import { generatePageMetadata, generateBreadcrumbSchema, generateFAQSchema } from "@/lib/metadata";
 import { dumpsterSizes, getDumpsterBySlug } from "@/data/dumpsters";
 import { siteConfig } from "@/data/site";
 
@@ -59,20 +60,18 @@ export default async function DumpsterSizePage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([breadcrumbSchema, productSchema]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([breadcrumbSchema, productSchema, generateFAQSchema(dumpster.faqs)]) }}
       />
 
       {/* Hero */}
-      <section className="bg-black text-white py-20 md:py-28">
+      <section className="bg-black text-white pt-32 md:pt-40 pb-16 md:pb-20">
         <Container>
           <div className="max-w-3xl">
-            <nav className="text-sm text-brand-gray-400 mb-4">
-              <Link href="/" className="hover:text-white">Home</Link>
-              <span className="mx-2">/</span>
-              <Link href="/dumpster-rentals" className="hover:text-white">Dumpster Rentals</Link>
-              <span className="mx-2">/</span>
-              <span className="text-white">{dumpster.size} Yard</span>
-            </nav>
+            <Breadcrumbs items={[
+              { label: "Home", href: "/" },
+              { label: "Dumpster Rentals", href: "/dumpster-rentals" },
+              { label: `${dumpster.size} Yard` },
+            ]} />
             <h1 className="text-4xl md:text-5xl font-bold mb-4">{dumpster.title}</h1>
             <p className="text-lg text-brand-gray-300 mb-6">{dumpster.description}</p>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -86,7 +85,7 @@ export default async function DumpsterSizePage({ params }: Props) {
       </section>
 
       {/* Specs */}
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Specs card */}
@@ -102,12 +101,16 @@ export default async function DumpsterSizePage({ params }: Props) {
                   <span className="font-semibold">{dumpster.dimensions}</span>
                 </div>
                 <div className="flex justify-between py-3 border-b border-brand-gray-200">
-                  <span className="text-brand-gray-600">Weight Limit</span>
-                  <span className="font-semibold">{dumpster.weight}</span>
+                  <span className="text-brand-gray-600">Tonnage Included</span>
+                  <span className="font-semibold">{dumpster.tonnageIncluded}</span>
                 </div>
                 <div className="flex justify-between py-3 border-b border-brand-gray-200">
                   <span className="text-brand-gray-600">Capacity</span>
                   <span className="font-semibold">{dumpster.capacity}</span>
+                </div>
+                <div className="flex justify-between py-3 border-b border-brand-gray-200">
+                  <span className="text-brand-gray-600">Best For</span>
+                  <span className="font-semibold">{dumpster.bestFor}</span>
                 </div>
                 <div className="flex justify-between py-3 border-b border-brand-gray-200">
                   <span className="text-brand-gray-600">Rental Period</span>
@@ -148,7 +151,7 @@ export default async function DumpsterSizePage({ params }: Props) {
       </section>
 
       {/* FAQ */}
-      <section className="bg-brand-gray-50 py-16 md:py-24">
+      <section className="bg-brand-gray-50 py-24 sm:py-32">
         <Container>
           <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
           <div className="max-w-3xl space-y-6">
@@ -163,7 +166,7 @@ export default async function DumpsterSizePage({ params }: Props) {
       </section>
 
       {/* Other sizes */}
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <h2 className="text-3xl font-bold mb-8 text-center">Other Dumpster Sizes</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -183,7 +186,7 @@ export default async function DumpsterSizePage({ params }: Props) {
       </section>
 
       {/* Quote Form */}
-      <section id="quote" className="bg-brand-gray-950 text-white py-16 md:py-24">
+      <section id="quote" className="bg-brand-gray-950 text-white py-24 sm:py-32">
         <Container>
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold mb-2 text-center">Get a Quote for Your {dumpster.size} Yard Dumpster</h2>

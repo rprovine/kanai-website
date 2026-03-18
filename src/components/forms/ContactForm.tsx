@@ -45,7 +45,7 @@ export function ContactForm({ className }: { className?: string }) {
 
   if (success) {
     return (
-      <div className={className}>
+      <div className={className} aria-live="polite">
         <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
           <div className="text-4xl mb-3">&#10003;</div>
           <h3 className="text-xl font-bold text-green-800 mb-2">Message Sent!</h3>
@@ -83,7 +83,7 @@ export function ContactForm({ className }: { className?: string }) {
           <textarea id="cf-message" name="message" required rows={5} className="w-full px-4 py-3 rounded-lg border border-brand-gray-300 focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition resize-none" />
         </div>
       </div>
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-sm text-red-600" role="alert" aria-live="assertive">{error}</p>}
       <Button type="submit" disabled={loading} className="mt-6 w-full sm:w-auto">
         {loading ? "Sending..." : "Send Message"}
       </Button>

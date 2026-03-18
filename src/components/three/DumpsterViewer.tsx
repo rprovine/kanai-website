@@ -16,11 +16,11 @@ interface DumpsterSizeData {
 }
 
 const DUMPSTER_SIZES: DumpsterSizeData[] = [
-  { yards: 10, label: "12' x 8' x 3.5'", scale: [1.0, 0.7, 0.8] },
+  { yards: 7, label: "10' x 5' x 3.5'", scale: [0.8, 0.7, 0.6] },
   { yards: 15, label: "14' x 8' x 4'", scale: [1.2, 0.8, 0.8] },
   { yards: 20, label: "16' x 8' x 4.5'", scale: [1.5, 0.9, 0.8] },
-  { yards: 30, label: "20' x 8' x 5'", scale: [1.5, 1.2, 0.8] },
-  { yards: 40, label: "22' x 8' x 6'", scale: [1.5, 1.6, 0.8] },
+  { yards: 25, label: "20' x 8' x 5'", scale: [1.5, 1.2, 0.8] },
+  { yards: 30, label: "22' x 8' x 6'", scale: [1.5, 1.6, 0.8] },
 ];
 
 function Dumpster({ targetScale }: { targetScale: [number, number, number] }) {

@@ -16,9 +16,9 @@ const variantStyles: Record<Variant, string> = {
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: "px-4 py-2 text-sm",
-  md: "px-6 py-3 text-base",
-  lg: "px-8 py-4 text-lg",
+  sm: "px-4 py-2 text-xs font-semibold",
+  md: "px-5 py-2.5 text-sm",
+  lg: "px-6 py-3 text-sm",
 };
 
 interface ButtonBaseProps {
@@ -38,7 +38,7 @@ type ButtonProps = ButtonAsButton | ButtonAsLink;
 export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   function Button({ variant = "primary", size = "md", className, ...props }, ref) {
     const classes = cn(
-      "inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 cursor-pointer",
+      "inline-flex items-center justify-center font-semibold rounded-md transition-all duration-200 cursor-pointer",
       variantStyles[variant],
       sizeStyles[size],
       className

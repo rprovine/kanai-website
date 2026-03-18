@@ -11,7 +11,7 @@ import { siteConfig } from "@/data/site";
 export const metadata: Metadata = generatePageMetadata({
   title: "Dumpster Rentals",
   description:
-    "Rent dumpsters on Oahu — 10, 15, 20, 30, and 40 yard sizes available. Fast delivery, affordable pricing. Call (808) 215-5006.",
+    "Rent dumpsters on Oahu — 7, 15, 20, 25, and 30 yard sizes available. Fast delivery, affordable pricing. Call (808) 215-5006.",
   path: "/dumpster-rentals",
 });
 
@@ -19,7 +19,7 @@ export default function DumpsterRentalsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-black text-white py-20 md:py-28">
+      <section className="bg-black text-white pt-32 md:pt-40 pb-16 md:pb-20">
         <Container>
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -43,7 +43,7 @@ export default function DumpsterRentalsPage() {
       <DumpsterSizeComparison />
 
       {/* Pricing Table */}
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <h2 className="text-3xl font-bold mb-4 text-center">Choose Your Size</h2>
           <p className="text-brand-gray-500 text-center mb-12 max-w-2xl mx-auto">
@@ -104,12 +104,12 @@ export default function DumpsterRentalsPage() {
       </section>
 
       {/* Size Guide */}
-      <section className="bg-brand-gray-50 py-16 md:py-24">
+      <section className="bg-brand-gray-50 py-24 sm:py-32">
         <Container>
           <h2 className="text-3xl font-bold mb-4 text-center">Dumpster Size Guide</h2>
           <p className="text-brand-gray-500 text-center mb-8 max-w-2xl mx-auto">
-            Our dumpsters range from small 10-yard containers for minor cleanouts to massive 40-yard
-            roll-offs for commercial construction. Here&apos;s a quick comparison.
+            Our dumpsters range from compact 7-yard containers for heavy materials to our largest 30-yard
+            roll-offs for commercial projects. Here&apos;s a quick comparison.
           </p>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] bg-white rounded-xl shadow-sm">
@@ -117,8 +117,8 @@ export default function DumpsterRentalsPage() {
                 <tr className="border-b border-brand-gray-200">
                   <th className="px-6 py-4 text-left text-sm font-semibold">Size</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Dimensions</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Capacity</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Weight</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Tonnage Included</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Best For</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Starting Price</th>
                 </tr>
               </thead>
@@ -127,8 +127,8 @@ export default function DumpsterRentalsPage() {
                   <tr key={d.slug} className="border-b border-brand-gray-100 hover:bg-brand-gray-50">
                     <td className="px-6 py-4 font-bold text-brand-red">{d.size} Yard</td>
                     <td className="px-6 py-4 text-sm">{d.dimensions}</td>
-                    <td className="px-6 py-4 text-sm">{d.capacity}</td>
-                    <td className="px-6 py-4 text-sm">{d.weight}</td>
+                    <td className="px-6 py-4 text-sm">{d.tonnageIncluded}</td>
+                    <td className="px-6 py-4 text-sm">{d.bestFor}</td>
                     <td className="px-6 py-4 text-sm font-semibold">{d.priceRange}</td>
                   </tr>
                 ))}
@@ -139,13 +139,13 @@ export default function DumpsterRentalsPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="border-b border-brand-gray-200 pb-6">
               <h3 className="text-lg font-semibold mb-2">How do I know which size to rent?</h3>
-              <p className="text-brand-gray-600">Consider the scope of your project. A 10-yard dumpster works for small cleanouts, while a 20-yard handles most home renovation projects. For large construction or commercial projects, go with a 30 or 40-yard. Call us and we can help you decide.</p>
+              <p className="text-brand-gray-600">Consider the scope of your project. Our 7-yard is built for heavy materials like concrete and dirt. The 15 and 20-yard handle most home projects. For large cleanouts or commercial jobs, go with a 25 or 30-yard. Call us and we can help you decide.</p>
             </div>
             <div className="border-b border-brand-gray-200 pb-6">
               <h3 className="text-lg font-semibold mb-2">How quickly can you deliver?</h3>
@@ -164,7 +164,7 @@ export default function DumpsterRentalsPage() {
       </section>
 
       {/* Quote Form */}
-      <section id="quote" className="bg-brand-gray-50 py-16 md:py-24">
+      <section id="quote" className="bg-brand-gray-50 py-24 sm:py-32">
         <Container>
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold mb-2 text-center">Get a Dumpster Quote</h2>

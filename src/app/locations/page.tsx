@@ -17,7 +17,7 @@ const regions = [...new Set(locations.map((l) => l.region))];
 export default function LocationsPage() {
   return (
     <>
-      <section className="bg-black text-white py-20 md:py-28">
+      <section className="bg-black text-white pt-32 md:pt-40 pb-16 md:pb-20">
         <Container>
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -32,7 +32,7 @@ export default function LocationsPage() {
         </Container>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           {regions.map((region) => {
             const regionLocations = locations.filter((l) => l.region === region);

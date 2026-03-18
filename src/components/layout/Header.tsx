@@ -3,17 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { siteConfig } from "@/data/site";
 import { trackPhoneClick } from "@/lib/tracking";
 
 const navigation = [
   { name: "Services", href: "/services" },
-  { name: "Dumpster Rentals", href: "/dumpster-rentals" },
+  { name: "Dumpsters", href: "/dumpster-rentals" },
   { name: "Locations", href: "/locations" },
   { name: "About", href: "/about" },
-  { name: "Gallery", href: "/gallery" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -21,98 +19,114 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-white/10">
-      <Container>
-        <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-xl md:text-2xl font-bold text-white">
-              Kana&apos;i&apos;s
-            </span>
-            <span className="text-sm md:text-base text-brand-red font-semibold uppercase tracking-wider">
-              Junk Removal
-            </span>
-          </Link>
+    <header className="fixed top-0 left-0 right-0 z-50">
+      <div className="bg-brand-gray-950/80 backdrop-blur-xl border-b border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/logo.svg"
+                alt="Kana'i's Junk Removal"
+                className="h-8 sm:h-10 w-auto invert"
+              />
+            </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-6">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm text-white/80 hover:text-white transition-colors font-medium"
+            {/* Desktop Nav */}
+            <nav className="hidden lg:flex items-center gap-1">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="px-4 py-2 text-sm text-brand-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+
+            {/* CTA */}
+            <div className="hidden lg:flex items-center gap-4">
+              <a
+                href={siteConfig.phoneHref}
+                onClick={trackPhoneClick}
+                className="text-sm text-brand-gray-400 hover:text-white transition-colors"
               >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+                {siteConfig.phone}
+              </a>
+              <Button href="/book-now" size="sm">
+                Free Estimate
+              </Button>
+            </div>
 
-          {/* CTA buttons */}
-          <div className="hidden lg:flex items-center gap-3">
-            <a
-              href={siteConfig.phoneHref}
-              onClick={trackPhoneClick}
-              className="text-sm text-white font-semibold hover:text-brand-red transition-colors"
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden p-2 text-brand-gray-400 hover:text-white transition-colors"
+              aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
             >
-              {siteConfig.phone}
-            </a>
-            <Button href="/book-now" size="sm">
-              Free Estimate
-            </Button>
+              <div className="w-5 flex flex-col gap-1.5">
+                <motion.span
+                  className="block h-px bg-current origin-center"
+                  animate={mobileOpen ? { rotate: 45, y: 3.5 } : { rotate: 0, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                />
+                <motion.span
+                  className="block h-px bg-current"
+                  animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
+                  transition={{ duration: 0.1 }}
+                />
+                <motion.span
+                  className="block h-px bg-current origin-center"
+                  animate={mobileOpen ? { rotate: -45, y: -3.5 } : { rotate: 0, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                />
+              </div>
+            </button>
           </div>
-
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 text-white"
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {mobileOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
         </div>
-      </Container>
+      </div>
 
       {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-black border-t border-white/10 overflow-hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            id="mobile-menu"
+            className="lg:hidden bg-brand-gray-950/98 backdrop-blur-xl border-b border-white/[0.06]"
           >
-            <Container>
-              <nav className="py-4 space-y-1">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+              <nav className="space-y-1">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className="block py-3 text-white/80 hover:text-white font-medium border-b border-white/5"
+                    className="block py-3 px-4 text-lg text-brand-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                   >
                     {item.name}
                   </Link>
                 ))}
-                <div className="pt-4 flex flex-col gap-3">
-                  <a
-                    href={siteConfig.phoneHref}
-                    onClick={trackPhoneClick}
-                    className="text-center py-3 text-white font-semibold text-lg"
-                  >
-                    {siteConfig.phone}
-                  </a>
-                  <Button href="/book-now" className="w-full justify-center">
-                    Free Estimate
-                  </Button>
-                </div>
               </nav>
-            </Container>
+              <div className="mt-6 pt-6 border-t border-white/[0.06] flex flex-col gap-3">
+                <a
+                  href={siteConfig.phoneHref}
+                  onClick={trackPhoneClick}
+                  className="text-center py-3 text-white font-semibold text-lg"
+                >
+                  {siteConfig.phone}
+                </a>
+                <Button href="/book-now" className="w-full justify-center">
+                  Get Free Estimate
+                </Button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

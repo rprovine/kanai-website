@@ -30,9 +30,9 @@ export function DumpsterSizeComparison() {
   }
 
   return (
-    <section className="bg-brand-gray-50 py-16 md:py-24">
+    <section className="bg-brand-gray-50 py-24 sm:py-32">
       <Container>
-        <div className="text-center mb-8">
+        <div className="text-center mb-10">
           <h2 className="text-3xl font-bold">Compare Dumpster Sizes</h2>
           <p className="text-brand-gray-500 mt-2">
             Click a size to see the dimensions in 3D

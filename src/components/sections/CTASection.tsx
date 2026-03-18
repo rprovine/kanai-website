@@ -1,59 +1,43 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { siteConfig } from "@/data/site";
+import { trackPhoneClick } from "@/lib/tracking";
 
 export function CTASection() {
   return (
-    <section className="relative bg-black py-24 md:py-32 overflow-hidden">
-      {/* Red accent gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-red/10 via-transparent to-brand-red/5" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-red/10 rounded-full blur-3xl" />
-
-      <Container className="relative z-10">
+    <section className="bg-brand-red py-24 sm:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          className="text-center max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
+          className="flex flex-col md:flex-row md:items-center md:justify-between gap-6"
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl md:text-5xl font-bold text-white">
-            Ready to Clear the Clutter?
-          </h2>
-          <p className="mt-6 text-lg text-brand-gray-400 max-w-xl mx-auto">
-            Get a free, no-obligation estimate today. Same-day service available across Oahu.
-          </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <Button href="/book-now" size="lg">
-              Book Now
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white leading-snug">
+              Ready to clear the clutter?
+            </h2>
+            <p className="mt-2 text-white/70 text-sm md:text-base">
+              Free estimates. Same-day service. We handle everything.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <Button href="/book-now" variant="white" className="text-brand-red font-bold">
+              Book Free Estimate
             </Button>
             <Button
               href={siteConfig.phoneHref}
-              variant="outline"
-              size="lg"
-              className="border-white text-white hover:bg-white hover:text-brand-gray-900"
+              variant="ghost"
+              className="text-white border border-white/30 hover:border-white hover:bg-white/10 hover:text-white"
+              onClick={trackPhoneClick}
             >
               Call {siteConfig.phone}
             </Button>
           </div>
-
-          <p className="mt-8 text-sm text-brand-gray-500">
-            Or call us directly at{" "}
-            <a
-              href={siteConfig.phoneHref}
-              className="text-brand-red hover:underline font-medium"
-            >
-              {siteConfig.phone}
-            </a>
-            {" "}&mdash; we answer 7 days a week.
-          </p>
         </motion.div>
-      </Container>
+      </div>
     </section>
   );
 }

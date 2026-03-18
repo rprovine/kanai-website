@@ -85,6 +85,21 @@ export function generateBreadcrumbSchema(items: { name: string; url: string }[])
   };
 }
 
+export function generateFAQSchema(faqs: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
 export function generateServiceSchema(name: string, description: string, url: string) {
   return {
     "@context": "https://schema.org",

@@ -1,179 +1,152 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
-import { Container } from "@/components/ui/Container";
+import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
-import { StarRating } from "@/components/ui/StarRating";
-import { Badge } from "@/components/ui/Badge";
 import { siteConfig } from "@/data/site";
 import { trackPhoneClick, trackCtaClick } from "@/lib/tracking";
 
-const HeroScene = dynamic(() => import("@/components/three/HeroScene").then((m) => m.HeroScene), {
-  ssr: false,
-  loading: () => null,
-});
-
-function FloatingParticle({ delay, x, y, size }: { delay: number; x: string; y: string; size: number }) {
-  return (
-    <motion.div
-      className="absolute rounded-full bg-brand-red/20"
-      style={{ left: x, top: y, width: size, height: size }}
-      animate={{
-        y: [0, -20, 0],
-        opacity: [0.3, 0.6, 0.3],
-        scale: [1, 1.2, 1],
-      }}
-      transition={{
-        duration: 4 + Math.random() * 2,
-        repeat: Infinity,
-        delay,
-        ease: "easeInOut",
-      }}
-    />
-  );
-}
-
 export function HeroSection() {
+  const prefersReducedMotion = useReducedMotion();
   return (
-    <section className="relative min-h-[90vh] bg-black flex items-center overflow-hidden">
-      {/* Gradient background (visible behind 3D scene / as fallback) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-brand-gray-950 to-brand-red/10" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--color-brand-red)/8%,transparent_60%)]" />
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
-
-      {/* Floating particles (CSS fallback) */}
-      <div className="absolute inset-0 pointer-events-none">
-        <FloatingParticle delay={0} x="10%" y="20%" size={6} />
-        <FloatingParticle delay={0.5} x="85%" y="30%" size={8} />
-        <FloatingParticle delay={1} x="70%" y="60%" size={5} />
-        <FloatingParticle delay={1.5} x="25%" y="70%" size={7} />
-        <FloatingParticle delay={2} x="50%" y="15%" size={4} />
-        <FloatingParticle delay={0.8} x="90%" y="75%" size={6} />
-        <FloatingParticle delay={1.2} x="15%" y="50%" size={5} />
-        <FloatingParticle delay={2.5} x="60%" y="80%" size={8} />
+    <section className="relative min-h-[100dvh] bg-brand-gray-950 overflow-hidden">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/hero/hero-bg.jpg"
+          alt="Kana'i's Junk Removal team at work"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+          quality={85}
+        />
+        {/* Lighter overlay — let the image breathe */}
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
       </div>
 
-      {/* 3D Scene (right side on desktop) */}
-      <div className="absolute inset-0 hidden lg:block">
-        <div className="absolute right-0 top-0 bottom-0 w-1/2">
-          <HeroScene />
-        </div>
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-r from-black via-black/80 to-transparent pointer-events-none" />
-      </div>
-
-      <Container className="relative z-10">
-        <div className="flex flex-col items-center text-center lg:items-start lg:text-left max-w-4xl lg:max-w-2xl">
-          {/* Rating badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            <Badge variant="light" className="mb-8">
-              <StarRating rating={siteConfig.reviews.rating} size="sm" />
-              <span className="text-white/90">
-                {siteConfig.reviews.rating} stars &middot; {siteConfig.reviews.count}+ reviews
-              </span>
-            </Badge>
-          </motion.div>
-
-          {/* Heading */}
-          <motion.h1
-            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.1]"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.7 }}
-          >
-            You Call,{" "}
-            <span className="text-brand-red inline-block">
-              <motion.span
-                className="inline-block"
-                initial={{ opacity: 0, x: -20 }}
+      {/* Content — vertically centered */}
+      <div className="relative z-10 min-h-[100dvh] flex items-center">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left */}
+            <div>
+              <motion.div
+                className="flex items-center gap-3 mb-5"
+                initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -15 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.4 }}
               >
-                We Haul
-              </motion.span>
-            </span>
-          </motion.h1>
+                <div className="w-6 h-px bg-brand-red" />
+                <span className="text-[11px] uppercase tracking-[0.2em] text-brand-red font-semibold">
+                  Oahu&apos;s #1 Rated
+                </span>
+              </motion.div>
 
-          {/* Subtext */}
-          <motion.p
-            className="mt-6 text-lg md:text-xl text-brand-gray-400 max-w-xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-          >
-            Oahu&rsquo;s #1 junk removal and dumpster rental service.{" "}
-            <span className="text-white font-medium">{siteConfig.reviews.count}+ five-star reviews.</span>{" "}
-            Fast, affordable, eco-friendly.
-          </motion.p>
+              <motion.h1
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1] tracking-tight"
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.1 }}
+              >
+                You call,
+                <br />
+                <span className="text-brand-red">we haul.</span>
+              </motion.h1>
 
-          {/* CTA buttons */}
-          <motion.div
-            className="mt-10 flex flex-col sm:flex-row gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.7 }}
-          >
-            <Button
-              href="/book-now"
-              size="lg"
-              onClick={() => trackCtaClick("hero_estimate", "hero")}
+              <motion.p
+                className="mt-5 text-base sm:text-lg text-white/70 max-w-md leading-relaxed"
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.25 }}
+              >
+                Professional junk removal &amp; dumpster rentals across Oahu.
+                Same-day service. Eco-friendly disposal.
+              </motion.p>
+
+              <motion.div
+                className="mt-7 flex flex-wrap gap-3"
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.4 }}
+              >
+                <Button
+                  href="/book-now"
+                  size="lg"
+                  onClick={() => trackCtaClick("hero_estimate", "hero")}
+                >
+                  Get Free Estimate
+                </Button>
+                <Button
+                  href={siteConfig.phoneHref}
+                  variant="ghost"
+                  size="lg"
+                  className="text-white/80 hover:text-white hover:bg-white/10"
+                  onClick={trackPhoneClick}
+                >
+                  <svg className="w-4 h-4 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  {siteConfig.phone}
+                </Button>
+              </motion.div>
+
+              {/* Trust row */}
+              <motion.div
+                className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-white/50"
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.6, duration: 0.4 }}
+              >
+                {["Licensed & Insured", "Same-Day Service", "Eco-Friendly"].map((t) => (
+                  <span key={t} className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-brand-red" />
+                    {t}
+                  </span>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Right — social proof card */}
+            <motion.div
+              className="hidden lg:flex justify-end"
+              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.5 }}
             >
-              Get Free Estimate
-            </Button>
-            <Button
-              href={siteConfig.phoneHref}
-              variant="outline"
-              size="lg"
-              className="border-white text-white hover:bg-white hover:text-brand-gray-900"
-              onClick={trackPhoneClick}
-            >
-              Call {siteConfig.phone}
-            </Button>
-          </motion.div>
-
-          {/* Trust badges */}
-          <motion.div
-            className="mt-8 flex items-center gap-6 text-sm text-brand-gray-500"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.5 }}
-          >
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Licensed &amp; Insured
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Same-Day Service
-            </span>
-            <span className="hidden sm:flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Eco-Friendly
-            </span>
-          </motion.div>
+              <div className="bg-white/10 backdrop-blur-lg border border-white/15 rounded-2xl p-5 w-full max-w-xs">
+                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-4">
+                  <Image
+                    src="/images/hero/team.jpg"
+                    alt="Kana'i's Junk Removal team"
+                    fill
+                    className="object-cover"
+                    sizes="320px"
+                  />
+                </div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <svg key={i} className="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-white font-bold text-sm">{siteConfig.reviews.count}+</span>
+                  <span className="text-white/50 text-xs">reviews</span>
+                </div>
+                <div className="flex gap-3 text-[10px] text-white/40 uppercase tracking-wider">
+                  <span>Licensed</span>
+                  <span>Insured</span>
+                  <span>Since {siteConfig.founded}</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
-      </Container>
-
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <svg className="w-6 h-6 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </motion.div>
+      </div>
     </section>
   );
 }

@@ -53,7 +53,7 @@ export function DumpsterQuoteForm({ preselectedSize, className }: DumpsterQuoteF
 
   if (success) {
     return (
-      <div className={className}>
+      <div className={className} aria-live="polite">
         <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
           <div className="text-4xl mb-3">&#10003;</div>
           <h3 className="text-xl font-bold text-green-800 mb-2">Quote Request Received!</h3>
@@ -140,11 +140,11 @@ export function DumpsterQuoteForm({ preselectedSize, className }: DumpsterQuoteF
             className="w-full px-4 py-3 rounded-lg border border-brand-gray-300 focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition"
           >
             <option value="">Select size...</option>
-            <option value="10">10 Yard</option>
+            <option value="7">7 Yard</option>
             <option value="15">15 Yard</option>
             <option value="20">20 Yard</option>
+            <option value="25">25 Yard</option>
             <option value="30">30 Yard</option>
-            <option value="40">40 Yard</option>
           </select>
         </div>
         <div>
@@ -196,7 +196,7 @@ export function DumpsterQuoteForm({ preselectedSize, className }: DumpsterQuoteF
         </div>
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-sm text-red-600" role="alert" aria-live="assertive">{error}</p>}
 
       <Button type="submit" disabled={loading} className="mt-6 w-full sm:w-auto">
         {loading ? "Submitting..." : "Get Dumpster Quote"}

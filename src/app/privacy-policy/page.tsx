@@ -12,13 +12,13 @@ export const metadata: Metadata = generatePageMetadata({
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <section className="bg-black text-white py-20 md:py-28">
+      <section className="bg-black text-white pt-32 md:pt-40 pb-16 md:pb-20">
         <Container>
           <h1 className="text-4xl md:text-5xl font-bold">Privacy Policy</h1>
         </Container>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <div className="max-w-3xl prose prose-lg">
             <p>Last updated: March 2026</p>

@@ -20,9 +20,9 @@ const bgStyles = {
 };
 
 const paddingStyles = {
-  sm: "py-12 md:py-16",
-  md: "py-16 md:py-24",
-  lg: "py-24 md:py-32",
+  sm: "py-12 sm:py-16",
+  md: "py-24 sm:py-32",
+  lg: "py-32 sm:py-40",
 };
 
 export function Section({
@@ -36,10 +36,10 @@ export function Section({
     <motion.section
       id={id}
       className={cn(bgStyles[background], paddingStyles[padding], className)}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5 }}
     >
       {children}
     </motion.section>

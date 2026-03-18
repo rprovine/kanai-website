@@ -14,7 +14,7 @@ export const metadata: Metadata = generatePageMetadata({
 export default function BookNowPage() {
   return (
     <>
-      <section className="bg-black text-white py-20 md:py-28">
+      <section className="bg-black text-white pt-32 md:pt-40 pb-16 md:pb-20">
         <Container>
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -28,7 +28,7 @@ export default function BookNowPage() {
         </Container>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">

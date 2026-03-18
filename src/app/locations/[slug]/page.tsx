@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Button } from "@/components/ui/Button";
 import { EstimateForm } from "@/components/forms/EstimateForm";
 import { generatePageMetadata, generateBreadcrumbSchema, generateLocalBusinessSchema } from "@/lib/metadata";
@@ -53,16 +54,14 @@ export default async function LocationPage({ params }: Props) {
       />
 
       {/* Hero */}
-      <section className="bg-black text-white py-20 md:py-28">
+      <section className="bg-black text-white pt-32 md:pt-40 pb-16 md:pb-20">
         <Container>
           <div className="max-w-3xl">
-            <nav className="text-sm text-brand-gray-400 mb-4">
-              <Link href="/" className="hover:text-white">Home</Link>
-              <span className="mx-2">/</span>
-              <Link href="/locations" className="hover:text-white">Locations</Link>
-              <span className="mx-2">/</span>
-              <span className="text-white">{location.name}</span>
-            </nav>
+            <Breadcrumbs items={[
+              { label: "Home", href: "/" },
+              { label: "Locations", href: "/locations" },
+              { label: location.name },
+            ]} />
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Junk Removal in <span className="text-brand-red">{location.name}</span>
             </h1>
@@ -78,7 +77,7 @@ export default async function LocationPage({ params }: Props) {
       </section>
 
       {/* Local Intro */}
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <div className="max-w-3xl">
             <h2 className="text-3xl font-bold mb-4">
@@ -102,7 +101,7 @@ export default async function LocationPage({ params }: Props) {
       </section>
 
       {/* Services Grid */}
-      <section className="bg-brand-gray-50 py-16 md:py-24">
+      <section className="bg-brand-gray-50 py-24 sm:py-32">
         <Container>
           <h2 className="text-3xl font-bold mb-8">Our Services in {location.name}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -128,7 +127,7 @@ export default async function LocationPage({ params }: Props) {
       </section>
 
       {/* Estimate Form */}
-      <section className="py-16 md:py-24">
+      <section className="py-24 sm:py-32">
         <Container>
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold mb-2 text-center">
@@ -144,7 +143,7 @@ export default async function LocationPage({ params }: Props) {
 
       {/* Nearby Locations */}
       {nearby.length > 0 && (
-        <section className="bg-brand-gray-50 py-16 md:py-24">
+        <section className="bg-brand-gray-50 py-24 sm:py-32">
           <Container>
             <h2 className="text-3xl font-bold mb-8">Nearby Service Areas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">

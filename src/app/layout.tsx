@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobilePhoneBar } from "@/components/layout/MobilePhoneBar";
+import { FloatingCTA } from "@/components/layout/FloatingCTA";
+import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 import { GTMScript } from "@/components/layout/GTMScript";
 import { FacebookPixel } from "@/components/layout/FacebookPixel";
 import { siteConfig } from "@/data/site";
@@ -61,12 +63,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-brand-red focus:text-white focus:px-4 focus:py-2 focus:rounded-md">
+          Skip to content
+        </a>
         <GTMScript />
         <FacebookPixel />
         <Header />
-        <main className="min-h-screen pt-16 md:pt-20 pb-14 lg:pb-0">{children}</main>
+        <FloatingCTA />
+        <main id="main-content" className="min-h-screen pb-14 lg:pb-0">{children}</main>
         <Footer />
         <MobilePhoneBar />
+        <ExitIntentPopup />
       </body>
     </html>
   );
