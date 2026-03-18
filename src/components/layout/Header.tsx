@@ -12,6 +12,8 @@ const navigation = [
   { name: "Dumpsters", href: "/dumpster-rentals" },
   { name: "Locations", href: "/locations" },
   { name: "About", href: "/about" },
+  { name: "Gallery", href: "/gallery" },
+  { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
 ];
 

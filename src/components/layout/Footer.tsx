@@ -22,6 +22,7 @@ const footerLinks = {
     { name: "Contact", href: "/contact" },
     { name: "Locations", href: "/locations" },
     { name: "Gallery", href: "/gallery" },
+    { name: "Blog", href: "/blog" },
     { name: "Privacy", href: "/privacy-policy" },
     { name: "Terms", href: "/terms-conditions" },
   ],
