@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import StickyMobileCTA from "@/components/StickyMobileCTA";
+import ChatWidget from "@/components/ChatWidget";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -54,6 +55,7 @@ export default function RootLayout({
         <main className="flex-1 pb-16 md:pb-0">{children}</main>
         <Footer />
         <StickyMobileCTA />
+        <ChatWidget />
         {/* CallRail call tracking */}
         <Script
           src="//cdn.callrail.com/companies/485072912/50d68559ba719aacff99/12/swap.js"

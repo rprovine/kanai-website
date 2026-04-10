@@ -94,6 +94,46 @@ async function createGhlContact(data: {
       }).catch((err) => console.error("[GHL] Note creation failed:", err));
     }
 
+    // Add to pipeline as New Lead
+    if (contactId) {
+      const pipelineId = process.env.GHL_PIPELINE_ID;
+      if (pipelineId) {
+        try {
+          // Get New Lead stage
+          const pipeResp = await fetch(
+            `${GHL_API_BASE}/opportunities/pipelines?locationId=${locationId}`,
+            { headers: { Authorization: `Bearer ${apiKey}`, Version: "2021-07-28" } }
+          );
+          if (pipeResp.ok) {
+            const pipeData = await pipeResp.json();
+            let stageId: string | null = null;
+            for (const p of pipeData.pipelines || []) {
+              if (p.id === pipelineId) {
+                for (const s of p.stages || []) {
+                  if (s.name.toLowerCase().includes("new lead")) { stageId = s.id; break; }
+                }
+              }
+            }
+            if (stageId) {
+              const isDR = data.serviceType === "dumpster-rental";
+              await fetch(`${GHL_API_BASE}/opportunities/`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${apiKey}`, Version: "2021-07-28", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  pipelineId, locationId, pipelineStageId: stageId, contactId,
+                  name: `Website Booking - ${data.name}`,
+                  source: isDR ? "Website - Dumpster Rental" : "Website - Junk Removal",
+                  status: "open",
+                }),
+              });
+            }
+          }
+        } catch (pipeErr) {
+          console.error("[GHL] Pipeline creation error:", pipeErr);
+        }
+      }
+    }
+
     return contactId;
   } catch (err) {
     console.error("[GHL] Contact creation error:", err);
