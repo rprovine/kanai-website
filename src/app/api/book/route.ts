@@ -191,6 +191,58 @@ export async function POST(request: NextRequest) {
 
     if (serviceType === "dumpster-rental" && dumpsterSize && address) {
       try {
+        // Check availability first
+        const sizeKey = dumpsterSize + "yd";
+        try {
+          const availRes = await fetch(`${DISPATCH_API_BASE}/api/assets?size=${sizeKey}&status=yard`);
+          if (availRes.ok) {
+            const availData = await availRes.json();
+            const available = (availData.assets || []).length;
+            if (available === 0) {
+              return NextResponse.json({
+                success: false,
+                error: `Sorry, no ${sizeKey} dumpsters are available right now. Please call (808) 201-2668 to check availability.`,
+                bookingId,
+                ghlContactId,
+              }, { status: 409 });
+            }
+          }
+        } catch { /* availability check failed — proceed anyway */ }
+
+        // Geocode the address via Google Places API for GPS coordinates
+        let gpsLat: number | null = null;
+        let gpsLng: number | null = null;
+        const gKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        if (gKey && address) {
+          try {
+            // Use Places Autocomplete to get place ID, then fetch location
+            const searchRes = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "X-Goog-Api-Key": gKey },
+              body: JSON.stringify({
+                input: address,
+                locationBias: { circle: { center: { latitude: 21.3069, longitude: -157.8583 }, radius: 50000 } },
+                includedRegionCodes: ["us"],
+              }),
+            });
+            if (searchRes.ok) {
+              const searchData = await searchRes.json();
+              const placeId = searchData.suggestions?.[0]?.placePrediction?.placeId;
+              if (placeId) {
+                const detailRes = await fetch(
+                  `https://places.googleapis.com/v1/places/${placeId}?fields=location`,
+                  { headers: { "X-Goog-Api-Key": gKey, "X-Goog-FieldMask": "location" } }
+                );
+                if (detailRes.ok) {
+                  const place = await detailRes.json();
+                  gpsLat = place.location?.latitude || null;
+                  gpsLng = place.location?.longitude || null;
+                }
+              }
+            }
+          } catch { /* geocoding failed — proceed without GPS */ }
+        }
+
         // Create dispatch task
         const taskRes = await fetch(`${DISPATCH_API_BASE}/api/tasks`, {
           method: "POST",
@@ -202,7 +254,9 @@ export async function POST(request: NextRequest) {
             customer_email: email || undefined,
             customer_type: "residential",
             job_address: address,
-            asset_size: dumpsterSize + "yd",
+            gps_lat: gpsLat,
+            gps_lng: gpsLng,
+            asset_size: sizeKey,
             scheduled_date: date,
             rental_duration: rentalDuration === "3-5" ? "long" : "short",
             payment_type: "prepaid",
