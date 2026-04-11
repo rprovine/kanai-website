@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -420,7 +420,7 @@ function BookPage() {
                   <Field id="name" label="Name" required value={name} onChange={setName} placeholder="Your name" />
                   <Field id="book-phone" label="Phone" required value={phone} onChange={setPhone} placeholder="(808) 555-1234" type="tel" />
                   <Field id="book-email" label="Email" value={email} onChange={setEmail} placeholder="you@example.com" type="email" />
-                  <Field id="address" label={isDR ? "Delivery Address" : "Pickup Address"} required value={address} onChange={setAddress} placeholder="123 Aloha St, Honolulu, HI" />
+                  <AddressField label={isDR ? "Delivery Address" : "Pickup Address"} value={address} onChange={setAddress} />
                 </div>
                 <p className="text-xs text-brand-cream/30 mt-4">
                   We&apos;ll send you a confirmation text with your appointment details.
@@ -543,6 +543,77 @@ function Field({ id, label, required, value, onChange, placeholder, type = "text
       <input type={type} id={id} value={value} onChange={(e) => onChange(e.target.value)} required={required}
         className="w-full h-11 px-4 bg-brand-dark border border-[#2A2A27] rounded-lg text-brand-cream placeholder:text-brand-cream/30 focus:outline-none focus:border-brand-amber focus:ring-1 focus:ring-brand-amber transition-colors"
         placeholder={placeholder} />
+    </div>
+  );
+}
+
+function AddressField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [suggestions, setSuggestions] = useState<{ placeId: string; text: string; secondary: string }[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout>(null);
+
+  const search = async (input: string) => {
+    if (input.length < 3) { setSuggestions([]); return; }
+    try {
+      const res = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Goog-Api-Key": process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "" },
+        body: JSON.stringify({
+          input,
+          locationBias: { circle: { center: { latitude: 21.3069, longitude: -157.8583 }, radius: 50000 } },
+          includedRegionCodes: ["us"],
+          includedPrimaryTypes: ["street_address", "subpremise", "premise"],
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const results = (data.suggestions || [])
+        .filter((s: Record<string, unknown>) => s.placePrediction)
+        .slice(0, 5)
+        .map((s: Record<string, unknown>) => {
+          const pred = s.placePrediction as Record<string, unknown>;
+          const text = (pred.text as Record<string, string>)?.text || "";
+          const structured = pred.structuredFormat as Record<string, Record<string, string>>;
+          return {
+            placeId: (pred.placeId || pred.place_id || "") as string,
+            text: structured?.mainText?.text || text,
+            secondary: structured?.secondaryText?.text || "",
+          };
+        });
+      setSuggestions(results);
+      setShowSuggestions(results.length > 0);
+    } catch { setSuggestions([]); }
+  };
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium text-brand-cream/70 mb-1.5">
+        {label} <span className="text-brand-amber">*</span>
+      </label>
+      <input
+        type="text" value={value} required autoComplete="off"
+        onChange={(e) => {
+          onChange(e.target.value);
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+          debounceRef.current = setTimeout(() => search(e.target.value), 300);
+        }}
+        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+        placeholder="Start typing an address on Oahu..."
+        className="w-full h-11 px-4 bg-brand-dark border border-[#2A2A27] rounded-lg text-brand-cream placeholder:text-brand-cream/30 focus:outline-none focus:border-brand-amber focus:ring-1 focus:ring-brand-amber transition-colors"
+      />
+      {showSuggestions && (
+        <div className="absolute z-50 w-full mt-1 bg-[#1A1A18] border border-[#2A2A27] rounded-lg shadow-xl overflow-hidden">
+          {suggestions.map((s, i) => (
+            <button key={s.placeId || i} type="button"
+              onMouseDown={() => { onChange(`${s.text}${s.secondary ? ", " + s.secondary : ""}`); setShowSuggestions(false); }}
+              className="w-full text-left px-4 py-3 text-sm hover:bg-brand-amber/10 border-b border-[#2A2A27] last:border-0 transition-colors">
+              <p className="font-medium text-brand-cream">{s.text}</p>
+              {s.secondary && <p className="text-xs text-brand-cream/40">{s.secondary}</p>}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
