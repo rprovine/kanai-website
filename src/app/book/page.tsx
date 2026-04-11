@@ -177,10 +177,22 @@ function BookPage() {
       });
 
       const data = await res.json();
+      if (!data.success && data.error) {
+        alert(data.error);
+        setSubmitting(false);
+        return;
+      }
       if (data.success) {
         setBookingId(data.bookingId);
         if (data.taskId) setTaskId(data.taskId);
         if (data.paymentUrl) setPaymentUrl(data.paymentUrl);
+
+        // Dumpster rentals: redirect straight to Stripe payment
+        if (isDR && data.paymentUrl) {
+          window.location.href = data.paymentUrl;
+          return; // Don't show confirmation — they'll land on Stripe
+        }
+
         setStep(confirmStep);
       }
     } catch {
@@ -419,7 +431,9 @@ function BookPage() {
                 <div className="size-16 rounded-full bg-green-500/10 border-2 border-green-500 flex items-center justify-center mx-auto mb-6">
                   <Check className="size-8 text-green-500" />
                 </div>
-                <h2 className="font-heading text-3xl font-bold text-brand-cream mb-2">You&apos;re Booked!</h2>
+                <h2 className="font-heading text-3xl font-bold text-brand-cream mb-2">
+                  {isDR ? "Booking Received!" : "You\u2019re Booked!"}
+                </h2>
                 <p className="text-brand-cream/50 mb-8 text-sm">
                   Confirmation #{bookingId.slice(0, 8).toUpperCase()}
                   {isDR && taskId && <> &middot; Task #{taskId.slice(0, 8).toUpperCase()}</>}
@@ -502,7 +516,7 @@ function BookPage() {
                         ? "bg-brand-amber text-brand-dark hover:bg-brand-amber-dark"
                         : "bg-[#2A2A27] text-brand-cream/30 cursor-not-allowed"
                     }`}>
-                    {submitting ? "Booking..." : step === infoStep ? "Confirm Booking" : "Next"}
+                    {submitting ? (isDR ? "Preparing Payment..." : "Booking...") : step === infoStep ? (isDR ? "Continue to Payment" : "Confirm Booking") : "Next"}
                     {!submitting && step < infoStep && <ChevronRight className="size-4" />}
                   </button>
                 )}

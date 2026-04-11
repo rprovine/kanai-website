@@ -277,12 +277,12 @@ export async function POST(request: NextRequest) {
               const paymentRes = await fetch(`${DISPATCH_API_BASE}/api/payments/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ task_id: taskId, mode: "payment_link" }),
+                body: JSON.stringify({ task_id: taskId, mode: "checkout_session" }),
               });
 
               if (paymentRes.ok) {
                 const paymentData = await paymentRes.json();
-                paymentUrl = paymentData.payment_url || null;
+                paymentUrl = paymentData.checkout_url || paymentData.payment_url || null;
               } else {
                 console.error("[DISPATCH] Payment link creation failed:", paymentRes.status, await paymentRes.text());
               }
