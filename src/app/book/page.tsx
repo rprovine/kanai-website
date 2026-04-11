@@ -44,11 +44,14 @@ const STOP_TYPES = [
 ];
 
 const MATERIAL_TYPES = [
-  { value: "general", label: "General / Household" },
+  { value: "household", label: "General / Household" },
   { value: "construction", label: "Construction & Renovation" },
   { value: "roofing", label: "Roofing" },
   { value: "green_waste", label: "Green Waste" },
-  { value: "concrete", label: "Concrete / Aggregate / Heavy" },
+  { value: "concrete", label: "Concrete / Aggregate" },
+  { value: "dirt", label: "Dirt / Fill" },
+  { value: "metals", label: "Metals" },
+  { value: "mixed", label: "Mixed Materials (+$150)" },
 ];
 
 function BookPage() {
@@ -347,7 +350,7 @@ function BookPage() {
                 <h3 className="font-heading text-sm font-semibold text-brand-cream/70 uppercase tracking-wider mb-3">Select a Size</h3>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   {DUMPSTER_SIZES.map((s) => (
-                    <button key={s.value} type="button" onClick={() => { setDumpsterSize(s.value); if (s.value === "7") setMaterialType("concrete"); else if (materialType === "concrete") setMaterialType(""); }}
+                    <button key={s.value} type="button" onClick={() => { setDumpsterSize(s.value); if (s.value === "7") { if (materialType !== "concrete" && materialType !== "dirt") setMaterialType("concrete"); } else if (materialType === "concrete" || materialType === "dirt") setMaterialType(""); }}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${dumpsterSize === s.value ? "border-brand-amber bg-brand-amber/5" : "border-[#2A2A27] hover:border-brand-cream/20"} ${s.restricted ? "col-span-2 sm:col-span-1" : ""}`}>
                       <div className="flex items-center gap-2">
                         <p className="font-heading font-bold text-brand-cream">{s.label}</p>
@@ -385,7 +388,7 @@ function BookPage() {
                 <h3 className="font-heading text-sm font-semibold text-brand-cream/70 uppercase tracking-wider mb-3">Material Type</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
                   {MATERIAL_TYPES
-                    .filter((m) => dumpsterSize === "7" ? m.value === "concrete" : m.value !== "concrete")
+                    .filter((m) => dumpsterSize === "7" ? (m.value === "concrete" || m.value === "dirt") : (m.value !== "concrete" && m.value !== "dirt"))
                     .map((m) => (
                     <button key={m.value} type="button" onClick={() => setMaterialType(m.value)}
                       className={`p-3 rounded-xl border-2 text-center transition-all ${materialType === m.value ? "border-brand-amber bg-brand-amber/5" : "border-[#2A2A27] hover:border-brand-cream/20"}`}>

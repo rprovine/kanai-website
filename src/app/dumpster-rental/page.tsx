@@ -228,6 +228,12 @@ export default function DumpsterRentalPage() {
               note="These materials MUST go in a 7-yard dumpster — they cannot be placed in larger containers"
             />
             <MaterialCard
+              title="Metals"
+              sizes="15, 20, 25, 30 yd"
+              items={["Scrap metal", "Appliances (doors removed)", "Metal roofing", "Steel, aluminum, copper"]}
+              note="Metal recycling may offset dump fees — ask about recycling credits"
+            />
+            <MaterialCard
               title="Not Accepted"
               sizes="—"
               items={["Hazardous materials (paint, chemicals)", "Asbestos", "Tires", "Propane tanks", "Medical waste", "Batteries & e-waste"]}
