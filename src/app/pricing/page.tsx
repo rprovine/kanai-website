@@ -19,10 +19,10 @@ const junkPricing = [
 ];
 
 const dumpsterPricing = [
-  { size: "7-yard", price: "$600", tons: "4 tons", note: "Concrete, aggregate, stone, dirt ONLY" },
+  { size: "7-yard", price: "From $400", tons: "By material", note: "Concrete, aggregate, stone, dirt ONLY" },
   { size: "15-yard", price: "$800", tons: "2 tons" },
   { size: "20-yard", price: "$850", tons: "3 tons" },
-  { size: "25-yard", price: "$900", tons: "3 tons" },
+  { size: "25-yard", price: "$850", tons: "3 tons" },
   { size: "30-yard", price: "$950", tons: "5 tons" },
 ];
 
@@ -37,7 +37,7 @@ const pricingFaqs = [
   },
   {
     q: "How much does dumpster rental cost on Oahu?",
-    a: "Dumpster rentals range from $600 for a 7-yard container (heavy materials only) to $950 for a 30-yard container. All rentals include delivery, pickup, and disposal within the included tonnage. Concrete, aggregate, stone, and dirt must go in a 7-yard dumpster.",
+    a: "Dumpster rentals range from $400 for a 7-yard container (heavy materials only) to $950 for a 30-yard container. All rentals include delivery, pickup, and disposal within the included tonnage. Concrete, aggregate, stone, and dirt must go in a 7-yard dumpster.",
   },
   {
     q: "Are there any hidden fees?",

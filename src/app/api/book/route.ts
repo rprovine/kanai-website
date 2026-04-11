@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const GHL_API_BASE = "https://services.leadconnectorhq.com";
+const DISPATCH_API_BASE = "https://kanai-dispatch.vercel.app";
 
 async function createGhlContact(data: {
   name: string;
@@ -14,6 +15,7 @@ async function createGhlContact(data: {
   stopType?: string;
   dumpsterSize?: string;
   rentalDuration?: string;
+  materialType?: string;
 }) {
   const apiKey = process.env.GHL_API_KEY;
   const locationId = process.env.GHL_LOCATION_ID;
@@ -42,6 +44,7 @@ async function createGhlContact(data: {
     `Service: ${isDR ? `Dumpster Rental — ${stopLabel}` : "Junk Removal"}`,
     isDR && data.dumpsterSize ? `Dumpster Size: ${data.dumpsterSize}-yard` : null,
     isDR && data.rentalDuration ? `Rental Duration: ${data.rentalDuration} days` : null,
+    isDR && data.materialType ? `Material Type: ${data.materialType}` : null,
     `Preferred Date: ${data.date}`,
     `Preferred Time: ${data.timeSlot}`,
     data.address ? `Address: ${data.address}` : null,
@@ -49,7 +52,7 @@ async function createGhlContact(data: {
     `Description:`,
     data.description || "(No description provided)",
     ``,
-    isDR ? `ACTION: Book in Docket` : `ACTION: Create job in Workiz`,
+    isDR ? `ACTION: Auto-booked in Dispatch System` : `ACTION: Create job in Workiz`,
   ].filter(Boolean).join("\n");
 
   try {
@@ -144,7 +147,7 @@ async function createGhlContact(data: {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { serviceType, date, timeSlot, name, phone, email, address, description, stopType, dumpsterSize, rentalDuration } = body;
+    const { serviceType, date, timeSlot, name, phone, email, address, description, stopType, dumpsterSize, rentalDuration, materialType } = body;
 
     const missing: string[] = [];
     if (!serviceType) missing.push("serviceType");
@@ -166,7 +169,7 @@ export async function POST(request: NextRequest) {
       name, phone, email, address,
       serviceType, description: description || "",
       date, timeSlot, stopType,
-      dumpsterSize, rentalDuration,
+      dumpsterSize, rentalDuration, materialType,
     });
 
     console.log("[BOOKING]", {
@@ -179,9 +182,70 @@ export async function POST(request: NextRequest) {
       phone,
       dumpsterSize: dumpsterSize || null,
       rentalDuration: rentalDuration || null,
+      materialType: materialType || null,
     });
 
-    return NextResponse.json({ success: true, bookingId, ghlContactId });
+    // For dumpster rentals, create a dispatch task and generate a payment link
+    let taskId: string | null = null;
+    let paymentUrl: string | null = null;
+
+    if (serviceType === "dumpster-rental" && dumpsterSize && address) {
+      try {
+        // Create dispatch task
+        const taskRes = await fetch(`${DISPATCH_API_BASE}/api/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            task_type: stopType === "exchange" ? "swap" : "drop_off",
+            customer_name: name,
+            customer_phone: phone,
+            customer_email: email || undefined,
+            customer_type: "residential",
+            job_address: address,
+            asset_size: dumpsterSize + "yd",
+            scheduled_date: date,
+            rental_duration: rentalDuration === "3-5" ? "long" : "short",
+            payment_type: "prepaid",
+            material_type: materialType || undefined,
+            notes: description || undefined,
+            ghl_contact_id: ghlContactId || undefined,
+            created_by: "website",
+          }),
+        });
+
+        if (taskRes.ok) {
+          const taskData = await taskRes.json();
+          taskId = taskData.task?.id || null;
+
+          // Generate payment link
+          if (taskId) {
+            try {
+              const paymentRes = await fetch(`${DISPATCH_API_BASE}/api/payments/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ task_id: taskId, mode: "payment_link" }),
+              });
+
+              if (paymentRes.ok) {
+                const paymentData = await paymentRes.json();
+                paymentUrl = paymentData.payment_url || null;
+              } else {
+                console.error("[DISPATCH] Payment link creation failed:", paymentRes.status, await paymentRes.text());
+              }
+            } catch (payErr) {
+              console.error("[DISPATCH] Payment link error:", payErr);
+            }
+          }
+        } else {
+          console.error("[DISPATCH] Task creation failed:", taskRes.status, await taskRes.text());
+        }
+      } catch (dispatchErr) {
+        console.error("[DISPATCH] Task creation error:", dispatchErr);
+        // Don't fail the booking — GHL lead was still created
+      }
+    }
+
+    return NextResponse.json({ success: true, bookingId, ghlContactId, taskId, paymentUrl });
   } catch {
     return NextResponse.json(
       { error: "Invalid request body" },

@@ -34,9 +34,9 @@ export default function HowItWorks() {
           <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-px bg-brand-amber/20" />
 
           {STEPS.map(({ num, icon: Icon, title, desc }) => (
-            <div key={num} className="relative text-center">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-brand-amber/10 border border-brand-amber/20 mb-5">
-                <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-brand-amber flex items-center justify-center">
+            <div key={num} className="text-center">
+              <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-full bg-brand-amber/10 border border-brand-amber/20 mb-5">
+                <div className="absolute -top-2 right-0 w-7 h-7 rounded-full bg-brand-amber flex items-center justify-center">
                   <span className="text-xs font-bold text-white">{num}</span>
                 </div>
                 <Icon className="w-10 h-10 text-brand-amber" />

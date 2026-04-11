@@ -7,28 +7,29 @@ import { getServiceSchema, getBreadcrumbSchema } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Dumpster Rental on Oahu | Kana'i's Roll Off & Junk Removal",
   description:
-    "Roll-off dumpster rental on Oahu. 7 to 30-yard containers for general debris and heavy materials. Pricing from $600 with tonnage included.",
+    "Roll-off dumpster rental on Oahu. 7 to 30-yard containers for general debris and heavy materials. Pricing from $400 with tonnage included.",
 };
 
 const dumpsters = [
   {
     size: "7",
-    price: 600,
+    priceLabel: "From $400",
     days: "1 day",
-    tons: 4,
+    tons: 0,
     tagline: "Concrete, aggregate, stone, dirt ONLY",
     restricted: true,
+    tonsLabel: "By material",
   },
   {
     size: "15",
-    price: 800,
+    priceLabel: "$800",
     days: "1-2 days",
     tons: 2,
     tagline: "Great for garage cleanouts, small renovations",
   },
   {
     size: "20",
-    price: 850,
+    priceLabel: "$850",
     days: "1-2 days",
     tons: 3,
     tagline: "Most popular for home remodels",
@@ -36,14 +37,14 @@ const dumpsters = [
   },
   {
     size: "25",
-    price: 900,
+    priceLabel: "$850",
     days: "1-2 days",
     tons: 3,
     tagline: "Ideal for large renovations, roofing",
   },
   {
     size: "30",
-    price: 950,
+    priceLabel: "$950",
     days: "1-2 days",
     tons: 5,
     tagline: "Commercial projects, full estate cleanouts",
@@ -80,7 +81,7 @@ export default function DumpsterRentalPage() {
       <JsonLd
         data={getServiceSchema(
           "Dumpster Rental on Oahu",
-          "Roll-off dumpster rental on Oahu. 7 to 30-yard containers for general debris and heavy materials. Pricing from $600 with tonnage included.",
+          "Roll-off dumpster rental on Oahu. 7 to 30-yard containers for general debris and heavy materials. Pricing from $400 with tonnage included.",
           "/dumpster-rental",
         )}
       />
@@ -147,7 +148,7 @@ export default function DumpsterRentalPage() {
                 </div>
                 <div className="text-center mb-4">
                   <span className="font-heading text-2xl font-bold text-brand-cream">
-                    ${d.price}
+                    {d.priceLabel}
                   </span>
                   <span className="text-brand-cream/50 text-sm ml-1">
                     / {d.days}
@@ -157,7 +158,7 @@ export default function DumpsterRentalPage() {
                   <div className="flex justify-between text-brand-cream/70">
                     <span>Included</span>
                     <span className="text-brand-cream font-medium">
-                      {d.tons} tons
+                      {d.tonsLabel || `${d.tons} tons`}
                     </span>
                   </div>
                   <div className="flex justify-between text-brand-cream/70">

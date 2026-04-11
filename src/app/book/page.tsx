@@ -12,6 +12,7 @@ import {
   Phone,
   Camera,
   ClipboardList,
+  CreditCard,
 } from "lucide-react";
 
 // Wrap in Suspense for useSearchParams SSG compatibility
@@ -24,10 +25,10 @@ export default function BookPageWrapper() {
 }
 
 const DUMPSTER_SIZES = [
-  { value: "7", label: "7-yard", price: "$600", tons: "4 tons", desc: "Concrete, aggregate, stone, dirt ONLY", restricted: true },
+  { value: "7", label: "7-yard", price: "From $400", tons: "By material", desc: "Concrete, aggregate, stone, dirt ONLY", restricted: true },
   { value: "15", label: "15-yard", price: "$800", tons: "2 tons", desc: "Garage cleanouts, small renovations", restricted: false },
   { value: "20", label: "20-yard", price: "$850", tons: "3 tons", desc: "Home remodels, medium projects", restricted: false },
-  { value: "25", label: "25-yard", price: "$900", tons: "3 tons", desc: "Large renovations, roofing", restricted: false },
+  { value: "25", label: "25-yard", price: "$850", tons: "3 tons", desc: "Large renovations, roofing", restricted: false },
   { value: "30", label: "30-yard", price: "$950", tons: "5 tons", desc: "Commercial, full estate cleanouts", restricted: false },
 ];
 
@@ -40,6 +41,14 @@ const RENTAL_DURATIONS = [
 const STOP_TYPES = [
   { value: "drop", label: "Drop Off", desc: "We deliver a dumpster to your location" },
   { value: "exchange", label: "Exchange", desc: "Swap your full dumpster for an empty one" },
+];
+
+const MATERIAL_TYPES = [
+  { value: "general", label: "General / Household" },
+  { value: "construction", label: "Construction & Renovation" },
+  { value: "roofing", label: "Roofing" },
+  { value: "green_waste", label: "Green Waste" },
+  { value: "concrete", label: "Concrete / Aggregate / Heavy" },
 ];
 
 function BookPage() {
@@ -66,6 +75,7 @@ function BookPage() {
   const [stopType, setStopType] = useState("");
   const [dumpsterSize, setDumpsterSize] = useState("");
   const [rentalDuration, setRentalDuration] = useState("");
+  const [materialType, setMaterialType] = useState("");
   const [drDescription, setDrDescription] = useState("");
 
   // Shared
@@ -77,6 +87,8 @@ function BookPage() {
   const [address, setAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [bookingId, setBookingId] = useState("");
+  const [taskId, setTaskId] = useState("");
+  const [paymentUrl, setPaymentUrl] = useState("");
 
   // If coming from estimator/quote with JR params, skip to step 2 (date picker)
   useEffect(() => {
@@ -160,12 +172,15 @@ function BookPage() {
           stopType: isDR ? stopType : undefined,
           dumpsterSize: isDR ? dumpsterSize : undefined,
           rentalDuration: isDR && rentalDuration ? rentalDuration : undefined,
+          materialType: isDR && materialType ? materialType : undefined,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
         setBookingId(data.bookingId);
+        if (data.taskId) setTaskId(data.taskId);
+        if (data.paymentUrl) setPaymentUrl(data.paymentUrl);
         setStep(confirmStep);
       }
     } catch {
@@ -181,7 +196,10 @@ function BookPage() {
       return; // Button won't show, they'll click estimate/quote links
     }
     if (step === infoStep) handleSubmit();
-    else if (canProceed()) setStep(step + 1);
+    else if (canProceed()) {
+      setStep(step + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   const serviceLabel = isDR ? "Dumpster Rental" : "Junk Removal";
@@ -263,7 +281,7 @@ function BookPage() {
                     </div>
                     <h3 className="font-heading text-lg font-semibold text-brand-cream mb-1">Dumpster Rental</h3>
                     <p className="text-sm text-brand-cream/50 mb-3">Roll-off dumpsters delivered to your location. Fill at your pace, we pick up.</p>
-                    <p className="text-brand-amber font-semibold text-sm">Starting at $600</p>
+                    <p className="text-brand-amber font-semibold text-sm">Starting at $400</p>
                   </button>
                 </div>
 
@@ -317,7 +335,7 @@ function BookPage() {
                 <h3 className="font-heading text-sm font-semibold text-brand-cream/70 uppercase tracking-wider mb-3">Select a Size</h3>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   {DUMPSTER_SIZES.map((s) => (
-                    <button key={s.value} type="button" onClick={() => setDumpsterSize(s.value)}
+                    <button key={s.value} type="button" onClick={() => { setDumpsterSize(s.value); if (s.value === "7") setMaterialType("concrete"); else if (materialType === "concrete") setMaterialType(""); }}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${dumpsterSize === s.value ? "border-brand-amber bg-brand-amber/5" : "border-[#2A2A27] hover:border-brand-cream/20"} ${s.restricted ? "col-span-2 sm:col-span-1" : ""}`}>
                       <div className="flex items-center gap-2">
                         <p className="font-heading font-bold text-brand-cream">{s.label}</p>
@@ -351,9 +369,25 @@ function BookPage() {
                   </>
                 )}
 
+                {/* Material Type */}
+                <h3 className="font-heading text-sm font-semibold text-brand-cream/70 uppercase tracking-wider mb-3">Material Type</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+                  {MATERIAL_TYPES
+                    .filter((m) => dumpsterSize === "7" ? m.value === "concrete" : m.value !== "concrete")
+                    .map((m) => (
+                    <button key={m.value} type="button" onClick={() => setMaterialType(m.value)}
+                      className={`p-3 rounded-xl border-2 text-center transition-all ${materialType === m.value ? "border-brand-amber bg-brand-amber/5" : "border-[#2A2A27] hover:border-brand-cream/20"}`}>
+                      <p className="font-heading font-semibold text-brand-cream text-sm">{m.label}</p>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-brand-cream/30 mb-6">
+                  Each dumpster must contain one type of material only. Mixing types incurs a $150 surcharge.
+                </p>
+
                 <textarea value={drDescription} onChange={(e) => setDrDescription(e.target.value)} rows={3}
                   className="w-full px-4 py-3 bg-brand-dark border border-[#2A2A27] rounded-lg text-brand-cream placeholder:text-brand-cream/30 focus:outline-none focus:border-brand-amber focus:ring-1 focus:ring-brand-amber transition-colors resize-y"
-                  placeholder="What type of debris? Renovation, cleanout, roofing? Any access restrictions?" />
+                  placeholder="Any access restrictions? Special instructions for delivery?" />
               </div>
             )}
 
@@ -386,7 +420,10 @@ function BookPage() {
                   <Check className="size-8 text-green-500" />
                 </div>
                 <h2 className="font-heading text-3xl font-bold text-brand-cream mb-2">You&apos;re Booked!</h2>
-                <p className="text-brand-cream/50 mb-8 text-sm">Confirmation #{bookingId.slice(0, 8).toUpperCase()}</p>
+                <p className="text-brand-cream/50 mb-8 text-sm">
+                  Confirmation #{bookingId.slice(0, 8).toUpperCase()}
+                  {isDR && taskId && <> &middot; Task #{taskId.slice(0, 8).toUpperCase()}</>}
+                </p>
 
                 <div className="bg-brand-dark border border-[#2A2A27] rounded-xl p-6 text-left max-w-sm mx-auto mb-8 space-y-3">
                   <SummaryRow label="Service" value={serviceLabel} />
@@ -395,15 +432,43 @@ function BookPage() {
                   {isDR && stopType && <SummaryRow label="Type" value={stopType === "exchange" ? "Exchange" : "Drop Off"} />}
                   {isDR && dumpsterSize && <SummaryRow label="Size" value={`${DUMPSTER_SIZES.find(s => s.value === dumpsterSize)?.label || dumpsterSize}`} />}
                   {isDR && rentalDuration && <SummaryRow label="Rental Period" value={RENTAL_DURATIONS.find(d => d.value === rentalDuration)?.label || rentalDuration} />}
+                  {isDR && materialType && <SummaryRow label="Material" value={MATERIAL_TYPES.find(m => m.value === materialType)?.label || materialType} />}
                   <SummaryRow label="Date" value={selectedDate?.toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric" }) || ""} />
                   <SummaryRow label="Time" value={timeLabel} />
                   <SummaryRow label="Name" value={name} />
                   <SummaryRow label="Address" value={address} />
                 </div>
 
+                {/* Dumpster rental: Pay Now + agreement info */}
+                {isDR && paymentUrl && (
+                  <div className="mb-6">
+                    <a href={paymentUrl} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 h-12 px-8 bg-brand-amber text-brand-dark font-heading font-semibold rounded-lg hover:bg-brand-amber-dark transition-colors text-lg">
+                      <CreditCard className="size-5" />
+                      Pay Now
+                    </a>
+                    <p className="text-brand-cream/40 text-xs mt-3">
+                      Prepayment is required to confirm your delivery. A rental agreement will be sent to sign before drop-off.
+                    </p>
+                  </div>
+                )}
+
+                {isDR && !paymentUrl && (
+                  <div className="mb-6">
+                    <p className="text-brand-cream/50 text-sm">
+                      Our team will send you a payment link shortly to confirm your delivery.
+                    </p>
+                    <p className="text-brand-cream/40 text-xs mt-2">
+                      A rental agreement will be sent to sign before drop-off.
+                    </p>
+                  </div>
+                )}
+
                 <p className="text-brand-cream/70 mb-1 font-semibold">What happens next?</p>
                 <p className="text-brand-cream/50 text-sm mb-2">
-                  You&apos;ll receive a confirmation text shortly. Our team will reach out if we need to adjust any details.
+                  {isDR
+                    ? "Complete payment to lock in your delivery date. You\u2019ll receive a confirmation text with rental details."
+                    : "You\u2019ll receive a confirmation text shortly. Our team will reach out if we need to adjust any details."}
                 </p>
                 {estimatedPrice && (
                   <p className="text-brand-cream/40 text-xs mb-4">
@@ -423,7 +488,7 @@ function BookPage() {
             {step < confirmStep && (
               <div className="flex justify-between mt-8 pt-6 border-t border-[#2A2A27]">
                 {(step > 1 && !(step === 2 && hasJREstimate)) ? (
-                  <button type="button" onClick={() => setStep(step - 1)}
+                  <button type="button" onClick={() => { setStep(step - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                     className="flex items-center gap-2 h-11 px-6 border border-[#2A2A27] rounded-lg text-brand-cream hover:border-brand-cream/30 transition-colors">
                     <ChevronLeft className="size-4" /> Back
                   </button>

@@ -25,6 +25,19 @@ interface Job {
   address: string;
   amount: number | null;
   customerName: string;
+  source?: "workiz" | "dispatch";
+  size?: string | null;
+  rentalEndDate?: string | null;
+  materialType?: string | null;
+}
+
+interface OutstandingPayment {
+  id: string;
+  amount: number;
+  type: string;
+  status: string;
+  description: string;
+  stripe_payment_url?: string;
 }
 
 interface Session {
@@ -47,7 +60,10 @@ export default function PortalDashboard() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionDone, setActionDone] = useState<string | null>(null);
+  const [outstandingPayments, setOutstandingPayments] = useState<OutstandingPayment[]>([]);
   const [rescheduleJob, setRescheduleJob] = useState<Job | null>(null);
+  const [extendJob, setExtendJob] = useState<Job | null>(null);
+  const [extendDays, setExtendDays] = useState(7);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
 
@@ -63,7 +79,10 @@ export default function PortalDashboard() {
 
     fetch(`/api/portal/jobs?phone=${sess.phone}`)
       .then((res) => res.json())
-      .then((data) => setJobs(data.jobs || []))
+      .then((data) => {
+        setJobs(data.jobs || []);
+        setOutstandingPayments(data.outstandingPayments || []);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [router]);
@@ -78,7 +97,12 @@ export default function PortalDashboard() {
     return digits;
   }
 
-  async function handleAction(jobId: string, action: "reschedule" | "cancel") {
+  async function handleAction(
+    jobId: string,
+    action: "reschedule" | "cancel" | "request-pickup" | "extend",
+    job?: Job,
+    extraBody?: Record<string, unknown>
+  ) {
     if (!session) return;
     setActionLoading(jobId);
 
@@ -90,8 +114,10 @@ export default function PortalDashboard() {
           phone: session.phone,
           jobId,
           action,
+          source: job?.source || "workiz",
           newDate: action === "reschedule" ? newDate : undefined,
           newTime: action === "reschedule" ? newTime : undefined,
+          ...extraBody,
         }),
       });
 
@@ -99,6 +125,8 @@ export default function PortalDashboard() {
       if (data.success) {
         setActionDone(`${action}-${jobId}`);
         setRescheduleJob(null);
+        setExtendJob(null);
+        setExtendDays(7);
         setNewDate("");
         setNewTime("");
       }
@@ -150,17 +178,48 @@ export default function PortalDashboard() {
             <div className="space-y-3">
               {activeJobs.map((job) => (
                 <JobCard
-                  key={job.id}
+                  key={`${job.source}-${job.id}`}
                   job={job}
                   actionLoading={actionLoading}
                   actionDone={actionDone}
                   onReschedule={() => setRescheduleJob(job)}
-                  onCancel={() => handleAction(job.id, "cancel")}
+                  onCancel={() => handleAction(job.id, "cancel", job)}
+                  onRequestPickup={job.source === "dispatch" ? () => handleAction(job.id, "request-pickup", job) : undefined}
+                  onExtend={job.source === "dispatch" ? () => setExtendJob(job) : undefined}
                 />
               ))}
             </div>
           )}
         </div>
+
+        {/* Outstanding Payments */}
+        {outstandingPayments.length > 0 && (
+          <div>
+            <h2 className="font-heading text-xl font-bold text-brand-cream mb-4">Outstanding Payments</h2>
+            <div className="space-y-2">
+              {outstandingPayments.map((payment) => (
+                <div key={payment.id} className="bg-[#1A1A18] border border-brand-amber/20 rounded-xl p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-brand-cream">{payment.description}</p>
+                    <p className="text-xs text-brand-cream/40 mt-0.5">${payment.amount.toFixed(2)}</p>
+                  </div>
+                  {payment.stripe_payment_url ? (
+                    <a
+                      href={payment.stripe_payment_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-9 px-4 text-sm bg-brand-amber text-brand-dark font-heading font-semibold rounded-lg hover:bg-brand-amber-dark transition-colors flex items-center"
+                    >
+                      Pay Now
+                    </a>
+                  ) : (
+                    <span className="text-xs text-brand-amber">Invoice pending</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Past Jobs */}
         {pastJobs.length > 0 && (
@@ -168,7 +227,7 @@ export default function PortalDashboard() {
             <h2 className="font-heading text-xl font-bold text-brand-cream mb-4">Past Jobs</h2>
             <div className="space-y-2">
               {pastJobs.map((job) => (
-                <div key={job.id} className="bg-[#1A1A18] border border-[#2A2A27] rounded-xl p-4 flex items-center justify-between">
+                <div key={`${job.source}-${job.id}`} className="bg-[#1A1A18] border border-[#2A2A27] rounded-xl p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {job.type.includes("Dumpster") ? (
                       <Container className="size-5 text-brand-cream/30" />
@@ -176,7 +235,10 @@ export default function PortalDashboard() {
                       <Truck className="size-5 text-brand-cream/30" />
                     )}
                     <div>
-                      <p className="text-sm font-semibold text-brand-cream">{job.type}</p>
+                      <p className="text-sm font-semibold text-brand-cream">
+                        {job.type}
+                        {job.size && <span className="text-brand-cream/40 font-normal"> — {job.size}</span>}
+                      </p>
                       <p className="text-xs text-brand-cream/40">{job.date || "No date"} &middot; Job #{job.id}</p>
                     </div>
                   </div>
@@ -270,18 +332,79 @@ export default function PortalDashboard() {
           </div>
         </div>
       )}
+      {/* Extend Rental Modal */}
+      {extendJob && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-[#1A1A18] border border-[#2A2A27] rounded-xl max-w-sm w-full p-6">
+            <h3 className="font-heading font-bold text-brand-cream mb-1">Extend Rental</h3>
+            <p className="text-xs text-brand-cream/40 mb-5">
+              {extendJob.size || "Dumpster"} at {extendJob.address}
+              {extendJob.rentalEndDate && (
+                <> &middot; Current end: {extendJob.rentalEndDate}</>
+              )}
+            </p>
+
+            <label className="block text-sm font-medium text-brand-cream/70 mb-1.5">Extension Days</label>
+            <select
+              value={extendDays}
+              onChange={(e) => setExtendDays(Number(e.target.value))}
+              className="w-full h-11 px-4 bg-brand-dark border border-[#2A2A27] rounded-lg text-brand-cream mb-6 focus:outline-none focus:border-brand-amber"
+            >
+              {[1, 2, 3, 5, 7, 14, 21, 30].map((d) => (
+                <option key={d} value={d}>
+                  {d} day{d > 1 ? "s" : ""}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setExtendJob(null); setExtendDays(7); }}
+                className="flex-1 h-11 border border-[#2A2A27] rounded-lg text-brand-cream hover:border-brand-cream/30 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleAction(extendJob.id, "extend", extendJob, { days: extendDays })}
+                disabled={actionLoading === extendJob.id}
+                className={`flex-1 h-11 rounded-lg font-heading font-semibold transition-colors ${
+                  actionLoading !== extendJob.id
+                    ? "bg-brand-amber text-brand-dark hover:bg-brand-amber-dark"
+                    : "bg-[#2A2A27] text-brand-cream/30 cursor-not-allowed"
+                }`}
+              >
+                {actionLoading === extendJob.id ? "Submitting..." : "Extend Rental"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
 
-function JobCard({ job, actionLoading, actionDone, onReschedule, onCancel }: {
+function daysRemaining(endDate: string | null | undefined): number | null {
+  if (!endDate) return null;
+  const end = new Date(endDate + "T23:59:59");
+  const now = new Date();
+  const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  return diff;
+}
+
+function JobCard({ job, actionLoading, actionDone, onReschedule, onCancel, onRequestPickup, onExtend }: {
   job: Job;
   actionLoading: string | null;
   actionDone: string | null;
   onReschedule: () => void;
   onCancel: () => void;
+  onRequestPickup?: () => void;
+  onExtend?: () => void;
 }) {
-  const isDone = actionDone === `cancel-${job.id}` || actionDone === `reschedule-${job.id}`;
+  const isDone = actionDone === `cancel-${job.id}` || actionDone === `reschedule-${job.id}`
+    || actionDone === `request-pickup-${job.id}` || actionDone === `extend-${job.id}`;
+
+  const isDispatchDumpster = job.source === "dispatch";
+  const remaining = isDispatchDumpster ? daysRemaining(job.rentalEndDate) : null;
 
   return (
     <div className="bg-[#1A1A18] border border-[#2A2A27] rounded-xl p-5">
@@ -297,7 +420,10 @@ function JobCard({ job, actionLoading, actionDone, onReschedule, onCancel }: {
             </div>
           )}
           <div>
-            <p className="font-heading font-bold text-brand-cream text-sm">{job.type}</p>
+            <p className="font-heading font-bold text-brand-cream text-sm">
+              {job.type}
+              {job.size && <span className="text-brand-cream/50 font-normal"> — {job.size}</span>}
+            </p>
             <p className="text-xs text-brand-cream/40">Job #{job.id}</p>
           </div>
         </div>
@@ -323,6 +449,26 @@ function JobCard({ job, actionLoading, actionDone, onReschedule, onCancel }: {
             <span>${job.amount.toFixed(2)}</span>
           </div>
         )}
+        {/* Dumpster rental details */}
+        {isDispatchDumpster && job.materialType && (
+          <div className="flex items-center gap-2 text-brand-cream/60">
+            <Container className="size-3.5 shrink-0" />
+            <span>Material: {job.materialType}</span>
+          </div>
+        )}
+        {isDispatchDumpster && job.rentalEndDate && (
+          <div className="flex items-center gap-2 text-brand-cream/60">
+            <Clock className="size-3.5 shrink-0" />
+            <span>
+              Rental ends: {job.rentalEndDate}
+              {remaining != null && (
+                <span className={remaining <= 2 ? " text-red-400 font-semibold" : remaining <= 5 ? " text-brand-amber" : ""}>
+                  {" "}({remaining > 0 ? `${remaining} day${remaining !== 1 ? "s" : ""} left` : remaining === 0 ? "ends today" : "overdue"})
+                </span>
+              )}
+            </span>
+          </div>
+        )}
       </div>
 
       {isDone ? (
@@ -330,7 +476,36 @@ function JobCard({ job, actionLoading, actionDone, onReschedule, onCancel }: {
           <Check className="size-4" />
           <span>Request submitted — we&apos;ll confirm shortly.</span>
         </div>
+      ) : isDispatchDumpster ? (
+        /* Dumpster rental actions */
+        <div className="flex gap-2 flex-wrap">
+          {onRequestPickup && (
+            <button
+              onClick={onRequestPickup}
+              disabled={actionLoading === job.id}
+              className="flex-1 h-9 text-sm bg-brand-amber/10 border border-brand-amber/30 rounded-lg text-brand-amber hover:bg-brand-amber/20 transition-colors flex items-center justify-center gap-1.5"
+            >
+              {actionLoading === job.id ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Truck className="size-3.5" />
+              )}
+              Request Pickup
+            </button>
+          )}
+          {onExtend && (
+            <button
+              onClick={onExtend}
+              disabled={actionLoading === job.id}
+              className="flex-1 h-9 text-sm border border-[#2A2A27] rounded-lg text-brand-cream/70 hover:border-brand-amber hover:text-brand-amber transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Clock className="size-3.5" />
+              Extend Rental
+            </button>
+          )}
+        </div>
       ) : (
+        /* Junk removal actions */
         <div className="flex gap-2">
           <button
             onClick={onReschedule}

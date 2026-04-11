@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
+import ServiceAreaMap from "./ServiceAreaMap";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -26,20 +27,11 @@ export default function ServiceAreaPage() {
       {/* Oahu Coverage Map */}
       <section className="pb-12">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="rounded-xl border border-white/5 overflow-hidden h-72 md:h-96">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d119750!2d-157.97!3d21.45!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1"
-              width="100%"
-              height="100%"
-              style={{ border: 0, filter: "invert(90%) hue-rotate(180deg)" }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Kana'i's service area — all of Oahu"
-            />
+          <div className="rounded-xl border border-white/5 overflow-hidden h-72 md:h-[480px]">
+            <ServiceAreaMap />
           </div>
           <p className="text-center text-xs text-brand-cream/30 mt-3">
-            We serve all of Oahu — from Kapolei to Hawaii Kai, North Shore to Waikiki.
+            Click a pin to see the neighborhood page. Shaded area shows our full coverage.
           </p>
         </div>
       </section>

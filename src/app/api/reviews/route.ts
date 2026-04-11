@@ -17,9 +17,6 @@ interface ReviewResponse {
 let cache: { data: ReviewResponse; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-// Kanai's Junk Removal — Halawa Heights, Aiea, Oahu
-// Review link: https://g.page/r/CSPVqkUojBN8EBM/review
-// Maps: https://www.google.com/maps/place/Kana'i's+Junk+Removal/@21.3712803,-157.9069427
 const PLACE_ID = "ChIJvX0Up5trAHwRI9WqRSiME3w";
 
 export async function GET() {
@@ -35,7 +32,7 @@ export async function GET() {
   }
 
   try {
-    // Google Places API (New) — Place Details
+    // Google Places API (New) — returns 5 most relevant reviews
     const url = `https://places.googleapis.com/v1/places/${PLACE_ID}`;
     const res = await fetch(url, {
       headers: {
@@ -52,14 +49,14 @@ export async function GET() {
 
     const data = await res.json();
 
-    const reviews = (data.reviews as GoogleReview[] | undefined)
-      ?.slice(0, 10)
+    const reviews = ((data.reviews as GoogleReview[]) ?? [])
+      .slice(0, 5)
       .map((r) => ({
         author: r.authorAttribution?.displayName ?? "Anonymous",
         rating: r.rating ?? 5,
         text: r.text?.text ?? "",
         relativeTime: r.relativePublishTimeDescription ?? "",
-      })) ?? [];
+      }));
 
     const result: ReviewResponse = {
       reviews,
@@ -67,7 +64,6 @@ export async function GET() {
       totalReviews: data.userRatingCount ?? 0,
     };
 
-    // Update cache
     cache = { data: result, expiresAt: Date.now() + CACHE_TTL_MS };
 
     return NextResponse.json(result);

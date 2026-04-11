@@ -1,12 +1,20 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import GoogleMap from "@/components/GoogleMap";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
-
   const [submitting, setSubmitting] = useState(false);
+  const [liveHours, setLiveHours] = useState<{ isOpen: boolean | null; hours: string[]; openNow: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/hours")
+      .then((r) => r.json())
+      .then(setLiveHours)
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -213,12 +221,31 @@ export default function ContactPage() {
                       <Clock className="size-5 text-brand-amber" />
                     </div>
                     <div>
-                      <p className="text-sm text-brand-cream/50 mb-1">Hours</p>
-                      <p className="text-brand-cream font-medium">
-                        Monday - Saturday: 8:00 AM - 6:00 PM
-                        <br />
-                        Sunday: Closed
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm text-brand-cream/50">Hours</p>
+                        {liveHours?.openNow && (
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                            liveHours.isOpen
+                              ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                              : "bg-red-500/15 text-red-400 border border-red-500/30"
+                          }`}>
+                            {liveHours.openNow}
+                          </span>
+                        )}
+                      </div>
+                      {liveHours?.hours && liveHours.hours.length > 0 ? (
+                        <div className="space-y-0.5">
+                          {liveHours.hours.map((h) => (
+                            <p key={h} className="text-brand-cream font-medium text-sm">{h}</p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-brand-cream font-medium">
+                          Monday - Saturday: 8:00 AM - 6:00 PM
+                          <br />
+                          Sunday: Closed
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -226,15 +253,12 @@ export default function ContactPage() {
 
               {/* Google Map */}
               <div className="aspect-[4/3] rounded-xl overflow-hidden border border-[#2A2A27]">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3774.5!2d-157.9069427!3d21.3712803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c006b9ba7147dbd%3A0x7c138c2845aad523!2sKana&#39;i&#39;s%20Junk%20Removal!5e0!3m2!1sen!2sus!4v1"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, filter: "invert(90%) hue-rotate(180deg)" }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Kana'i's Roll Off & Junk Removal location"
+                <GoogleMap
+                  center={{ lat: 21.3712803, lng: -157.9069427 }}
+                  zoom={14}
+                  className="w-full h-full"
+                  showKanaiPin
+                  showDirectionsButton
                 />
               </div>
             </div>

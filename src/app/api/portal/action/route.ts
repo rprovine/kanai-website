@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const GHL_API_BASE = "https://services.leadconnectorhq.com";
+const DISPATCH_API_BASE = "https://kanai-dispatch.vercel.app";
 
 function ghlHeaders() {
   return {
@@ -40,6 +41,55 @@ async function sendSmsViaGhl(contactId: string, message: string) {
   });
 }
 
+async function handleDispatchAction(
+  action: string,
+  body: Record<string, unknown>
+): Promise<NextResponse> {
+  const { jobId } = body;
+
+  try {
+    if (action === "request-pickup") {
+      const res = await fetch(`${DISPATCH_API_BASE}/api/portal/request-pickup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task_id: jobId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return NextResponse.json({ error: data.error || "Pickup request failed" }, { status: res.status });
+      }
+      return NextResponse.json({ success: true, action: "request-pickup" });
+    }
+
+    if (action === "extend") {
+      const days = Number(body.days) || 7;
+      const res = await fetch(`${DISPATCH_API_BASE}/api/portal/extend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task_id: jobId, days }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return NextResponse.json({ error: data.error || "Extension failed" }, { status: res.status });
+      }
+      return NextResponse.json({
+        success: true,
+        action: "extend",
+        new_end_date: data.new_end_date,
+        extension_charge: data.extension_charge,
+      });
+    }
+
+    // For reschedule/cancel of dispatch tasks, create a GHL note as fallback
+    // (dispatch system doesn't have these endpoints yet)
+    // Fall through to GHL note flow below
+    return NextResponse.json({ error: "Action not supported for dumpster rentals" }, { status: 400 });
+  } catch (err) {
+    console.error("[Portal] Dispatch action error:", err);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -49,8 +99,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    if (!["reschedule", "cancel"].includes(action)) {
+    if (!["reschedule", "cancel", "request-pickup", "extend"].includes(action)) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    }
+
+    // Dispatch dumpster actions — route to dispatch API
+    if (body.source === "dispatch" && ["request-pickup", "extend", "reschedule", "cancel"].includes(action)) {
+      return handleDispatchAction(action, body);
     }
 
     const apiKey = process.env.GHL_API_KEY;
