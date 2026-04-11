@@ -243,6 +243,23 @@ export async function POST(request: NextRequest) {
           } catch { /* geocoding failed — proceed without GPS */ }
         }
 
+        // Calculate rental price based on size and duration
+        const PRICES: Record<string, { short: number; long: number }> = {
+          "7yd": { short: 400, long: 400 }, // 7yd priced by material, $400 base
+          "15yd": { short: 800, long: 850 },
+          "20yd": { short: 850, long: 900 },
+          "25yd": { short: 850, long: 900 },
+          "30yd": { short: 950, long: 1000 },
+        };
+        const SEVEN_YD_PRICES: Record<string, number> = {
+          concrete: 450, dirt: 450, roofing: 500,
+        };
+        const dur = rentalDuration === "3-5" ? "long" : "short";
+        let rentalPrice = PRICES[sizeKey]?.[dur] || 850;
+        if (sizeKey === "7yd" && materialType) {
+          rentalPrice = SEVEN_YD_PRICES[materialType] || 400;
+        }
+
         // Create dispatch task
         const taskRes = await fetch(`${DISPATCH_API_BASE}/api/tasks`, {
           method: "POST",
@@ -258,7 +275,8 @@ export async function POST(request: NextRequest) {
             gps_lng: gpsLng,
             asset_size: sizeKey,
             scheduled_date: date,
-            rental_duration: rentalDuration === "3-5" ? "long" : "short",
+            rental_duration: dur,
+            rental_price: rentalPrice,
             payment_type: "prepaid",
             material_type: materialType || undefined,
             notes: description || undefined,
