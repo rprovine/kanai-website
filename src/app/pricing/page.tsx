@@ -15,7 +15,7 @@ const junkPricing = [
   { label: "1/4 load", price: "$455" },
   { label: "1/2 load", price: "$675" },
   { label: "3/4 load", price: "$855" },
-  { label: "Full load", price: "$980" },
+  { label: "Full load", price: "From $980" },
 ];
 
 const dumpsterPricing = [
@@ -33,7 +33,7 @@ const pricingFaqs = [
   },
   {
     q: "How much does junk removal cost on Oahu?",
-    a: "Junk removal starts at $187 for a minimum load and goes up to $980 for a full truck load. Pricing is based on how much space your items take in our 15-cubic-yard truck.",
+    a: "Junk removal starts at $187 for a minimum load. A full truck load starts at $980, but the total can be higher depending on the items — mattresses, appliances, construction debris, and other specialty items have additional environmental and handling fees. Our team will give you the exact price on-site before starting.",
   },
   {
     q: "How much does dumpster rental cost on Oahu?",

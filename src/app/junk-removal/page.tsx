@@ -148,12 +148,13 @@ export default function JunkRemovalPage() {
             <div className="flex justify-between items-center py-3">
               <span className="text-brand-cream/70">Full truck</span>
               <span className="font-heading font-bold text-brand-amber text-lg">
-                $980
+                From $980
               </span>
             </div>
             <p className="text-sm text-brand-cream/50 mt-6 text-center">
-              These are estimated starting prices. Your team lead confirms the
-              firm price on-site before any work begins. No obligation if you decline.
+              These are estimated starting prices. Additional fees apply for
+              mattresses, appliances, construction debris, and other specialty items.
+              Your team lead confirms the firm price on-site before any work begins.
             </p>
           </div>
           <div className="text-center mt-8">
