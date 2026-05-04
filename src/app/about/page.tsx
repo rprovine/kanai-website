@@ -143,10 +143,7 @@ export default function AboutPage() {
             {[
               { name: "Xavier", role: "Field Ops Supervisor", img: "/images/team-xavier.jpg" },
               { name: "Rey", role: "Team Lead", img: "/images/team-rey.png" },
-              { name: "Zakea", role: "Team Lead", img: "/images/team-zakea.png" },
               { name: "AJ", role: "Navigator", img: "/images/team-aj.png" },
-              { name: "Kapono", role: "Driver", img: "/images/team-kapono.png" },
-              { name: "Ramil", role: "Driver", img: "/images/team-ramil.png" },
             ].map((member) => (
               <div key={member.name} className="text-center">
                 <div className="relative w-28 h-28 md:w-32 md:h-32 mx-auto mb-3 rounded-full overflow-hidden border-2 border-[#2A2A27]">
