@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { priceFor, priceForSevenYdByMaterial } from "@kanai/pricing";
 
 const GHL_API_BASE = "https://services.leadconnectorhq.com";
 const DISPATCH_API_BASE = "https://kanai-dispatch.vercel.app";
@@ -243,21 +244,17 @@ export async function POST(request: NextRequest) {
           } catch { /* geocoding failed — proceed without GPS */ }
         }
 
-        // Calculate rental price based on size and duration
-        const PRICES: Record<string, { short: number; long: number }> = {
-          "7yd": { short: 400, long: 400 }, // 7yd priced by material, $400 base
-          "15yd": { short: 800, long: 850 },
-          "20yd": { short: 850, long: 900 },
-          "25yd": { short: 850, long: 900 },
-          "30yd": { short: 950, long: 1000 },
-        };
-        const SEVEN_YD_PRICES: Record<string, number> = {
-          concrete: 450, dirt: 450, roofing: 500,
-        };
+        // Calculate rental price — public booking flow uses residential
+        // rates by default. 7yd is priced by material (concrete/dirt
+        // /roofing); other materials fall back to the 7yd default.
+        // All rate tables now live in @kanai/pricing — never inline
+        // pricing tables in this file (or any other file) again.
         const dur = rentalDuration === "3-5" ? "long" : "short";
-        let rentalPrice = PRICES[sizeKey]?.[dur] || 850;
-        if (sizeKey === "7yd" && materialType) {
-          rentalPrice = SEVEN_YD_PRICES[materialType] || 400;
+        let rentalPrice: number;
+        if (sizeKey === "7yd") {
+          rentalPrice = priceForSevenYdByMaterial(materialType);
+        } else {
+          rentalPrice = priceFor(sizeKey, dur, "residential") ?? 850;
         }
 
         // Create dispatch task

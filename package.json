@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
+    "@kanai/pricing": "git+https://github.com/rprovine/kanai-pricing.git",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/supabase-js": "^2.101.1",
