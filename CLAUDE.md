@@ -52,7 +52,7 @@ npx vercel --prod --yes  # Deploy to Vercel
 
 | Route | Method | Purpose |
 |-------|--------|---------|
-| `/api/book` | POST | Booking → GHL contact with tags + notes |
+| `/api/book` | POST | Booking → GHL contact with tags + notes. Dumpster pricing comes from `@kanai/pricing` (`priceFor` + `priceForSevenYdByMaterial`); **never inline a price table here**. |
 | `/api/ghl-lead` | POST | Lead capture → GHL contact |
 | `/api/reviews` | GET | Google Places reviews (cached 1hr) |
 | `/api/stats` | GET | Live job count + tons from Supabase |
@@ -64,6 +64,8 @@ npx vercel --prod --yes  # Deploy to Vercel
 ## Key Patterns
 
 **Pricing language:** Always use "estimated starting price" for online tools. Never "quote" or "Not-to-Exceed." The firm price is given on-site by the team lead. Customer owes nothing if they decline.
+
+**Pricing source of truth.** Any pricing math (dumpster rental rates, junk-removal truckload prices, env fees, surcharges, tax) lives in **[`@kanai/pricing`](https://github.com/rprovine/kanai-pricing)** — never duplicate constants into this repo. If rates change, bump the package and `npm install`. The 7yd material-specific table (`SEVEN_YD_BY_MATERIAL`) is in the package since the website's public booking is the canonical caller of that helper.
 
 **Booking flow:** JR requires an estimated price first (redirects to /estimate or /quote). DR goes straight to size/duration selection. Both create GHL contacts with service-specific tags. CSRs handle actual booking in Workiz (JR) or Docket (DR).
 
