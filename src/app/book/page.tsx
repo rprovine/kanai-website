@@ -45,7 +45,7 @@ const STOP_TYPES = [
 
 const MATERIAL_TYPES = [
   { value: "household", label: "General / Household" },
-  { value: "construction", label: "Construction & Renovation" },
+  { value: "construction_debris", label: "Construction Debris" },
   { value: "roofing", label: "Roofing" },
   { value: "green_waste", label: "Green Waste" },
   { value: "concrete", label: "Concrete / Aggregate" },
