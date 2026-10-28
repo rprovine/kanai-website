@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const GHL_API_BASE = "https://services.leadconnectorhq.com";
-
-function ghlHeaders() {
-  return {
-    Authorization: `Bearer ${process.env.GHL_API_KEY}`,
-    Version: "2021-07-28",
-    "Content-Type": "application/json",
-  };
-}
-
 // In-memory code store (resets on cold start — fine for short-lived verification codes)
 const codes: Map<string, { code: string; expiresAt: number }> = new Map();
 
@@ -17,29 +7,6 @@ function normalizePhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
   if (digits.length === 11 && digits.startsWith("1")) return digits.slice(1);
   return digits;
-}
-
-async function findGhlContact(phone: string) {
-  const locationId = process.env.GHL_LOCATION_ID;
-  if (!locationId) return null;
-
-  const params = new URLSearchParams({ locationId, query: phone });
-  const res = await fetch(`${GHL_API_BASE}/contacts/search?${params}`, {
-    headers: ghlHeaders(),
-  });
-
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.contacts?.[0] || null;
-}
-
-async function sendSmsViaGhl(contactId: string, message: string) {
-  const res = await fetch(`${GHL_API_BASE}/conversations/messages`, {
-    method: "POST",
-    headers: ghlHeaders(),
-    body: JSON.stringify({ type: "SMS", contactId, message }),
-  });
-  return res.ok;
 }
 
 export async function POST(request: NextRequest) {
@@ -75,41 +42,20 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const verifyCode = String(Math.floor(100000 + Math.random() * 900000));
-      codes.set(normalized, { code: verifyCode, expiresAt: Date.now() + 10 * 60 * 1000 });
-
-      if (process.env.GHL_API_KEY && process.env.GHL_LOCATION_ID) {
-        // Try to find existing GHL contact
-        let contact = await findGhlContact(normalized);
-
-        // If not in GHL, create a contact so we can send SMS
-        if (!contact?.id) {
-          const locationId = process.env.GHL_LOCATION_ID;
-          const createRes = await fetch(`${GHL_API_BASE}/contacts/`, {
-            method: "POST",
-            headers: ghlHeaders(),
-            body: JSON.stringify({
-              locationId,
-              phone: normalized,
-              tags: ["Portal User"],
-            }),
-          });
-          if (createRes.ok) {
-            const createData = await createRes.json();
-            contact = createData.contact;
-          }
-        }
-
-        if (contact?.id) {
-          await sendSmsViaGhl(
-            contact.id,
-            `Your Kana'i's verification code is: ${verifyCode}\n\nThis code expires in 10 minutes.`
-          );
-          return NextResponse.json({ success: true, sent: true });
-        }
+      // The code used to be texted through GoHighLevel, which is being shut
+      // down, and this site has no other SMS sender. Fail closed: handing the
+      // code back in the response would let anyone sign in as any phone.
+      if (process.env.NODE_ENV === "production") {
+        console.error("[Portal] Verification SMS unavailable — no SMS sender configured");
+        return NextResponse.json({
+          success: false,
+          error: "We can't text sign-in codes right now. Please call (808) 201-2668 for help with your job.",
+        }, { status: 503 });
       }
 
-      // GHL not configured or SMS failed — dev mode
+      // Local dev only: show the code instead of texting it.
+      const verifyCode = String(Math.floor(100000 + Math.random() * 900000));
+      codes.set(normalized, { code: verifyCode, expiresAt: Date.now() + 10 * 60 * 1000 });
       return NextResponse.json({ success: true, sent: false, devCode: verifyCode });
     }
 

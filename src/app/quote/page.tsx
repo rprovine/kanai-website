@@ -149,7 +149,7 @@ export default function QuotePage() {
     setError("");
 
     try {
-      const res = await fetch("/api/ghl-lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -159,11 +159,16 @@ export default function QuotePage() {
           items: selectedList.map(([n, qty]) => ({ name: n, qty })),
           volume: totalCuFt,
           ntePrice: tier.price,
+          priceTier: tier.label,
           source: "quick-quote",
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Something went wrong. Please try again or call (808) 201-2668.");
+        return;
+      }
       setSubmitted(true);
     } catch {
       setError("Something went wrong. Please try again or call (808) 201-2668.");

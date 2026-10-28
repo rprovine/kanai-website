@@ -52,14 +52,14 @@ npx vercel --prod --yes  # Deploy to Vercel
 
 | Route | Method | Purpose |
 |-------|--------|---------|
-| `/api/book` | POST | Booking → GHL contact with tags + notes. Dumpster pricing comes from `@kanai/pricing` (`priceFor` + `priceForSevenYdByMaterial`); **never inline a price table here**. |
-| `/api/ghl-lead` | POST | Lead capture → GHL contact |
+| `/api/book` | POST | Booking → DR: Holo task + Stripe payment link; JR (or a failed DR task): Holo lead. Dumpster pricing comes from `@kanai/pricing` (`priceFor` + `priceForSevenYdByMaterial`); **never inline a price table here**. |
+| `/api/lead` | POST | Lead capture (quick quote, contact form) → Holo `/api/webhooks/web-form` |
 | `/api/reviews` | GET | Google Places reviews (cached 1hr) |
 | `/api/stats` | GET | Live job count + tons from Supabase |
 | `/api/workiz-webhook` | POST | Workiz status webhook receiver |
-| `/api/portal/verify` | POST | SMS verification via GHL |
+| `/api/portal/verify` | POST | Phone verification (no SMS sender since GHL removal — fails closed in production) |
 | `/api/portal/jobs` | GET | Fetch customer jobs from Workiz by phone |
-| `/api/portal/action` | POST | Reschedule/cancel → GHL note + SMS |
+| `/api/portal/action` | POST | Dumpster pickup/extend → Holo; Workiz reschedule/cancel → "please call" |
 
 ## Key Patterns
 
@@ -67,7 +67,7 @@ npx vercel --prod --yes  # Deploy to Vercel
 
 **Pricing source of truth.** Any pricing math (dumpster rental rates, junk-removal truckload prices, env fees, surcharges, tax) lives in **[`@kanai/pricing`](https://github.com/rprovine/kanai-pricing)** — never duplicate constants into this repo. If rates change, bump the package and `npm install`. The 7yd material-specific table (`SEVEN_YD_BY_MATERIAL`) is in the package since the website's public booking is the canonical caller of that helper.
 
-**Booking flow:** JR requires an estimated price first (redirects to /estimate or /quote). DR goes straight to size/duration selection. Both create GHL contacts with service-specific tags. CSRs handle actual booking in Workiz (JR) or Docket (DR).
+**Booking flow:** JR requires an estimated price first (redirects to /estimate or /quote). DR goes straight to size/duration selection. DR creates a Holo task + payment link; JR (and any DR whose task fails) is sent to Holo as a lead for a CSR to confirm.
 
 **Dumpster rules:** Each dumpster must contain one material type only. Mixing = $150 surcharge. Concrete/aggregate/stone/dirt = 7-yard dumpster ONLY.
 
@@ -75,7 +75,7 @@ npx vercel --prod --yes  # Deploy to Vercel
 
 ## Integrations
 
-- **GHL** — Lead capture, contact creation, SMS sending, notes
+- **Holo (kanai-dispatch)** — Lead intake (`src/lib/holo-lead.ts`), dumpster tasks + payment links
 - **Workiz** — Job lookup for customer portal
 - **Supabase** — Stats (job counts, tonnage from EOD reports)
 - **CallRail** — Call tracking script (swap.js)
@@ -84,13 +84,11 @@ npx vercel --prod --yes  # Deploy to Vercel
 
 ## Environment Variables (Vercel)
 
-- `GHL_API_KEY` — GoHighLevel API key
-- `GHL_LOCATION_ID` — GHL location
+- `HOLO_WEB_FORM_TOKEN` — Holo lead-intake token; must equal Holo's `WEB_FORM_WEBHOOK_TOKEN`
 - `WORKIZ_API_TOKEN` — Workiz API token
 - `SUPABASE_URL` — Supabase project URL
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key
 - `GOOGLE_PLACES_API_KEY` — For live reviews (optional, falls back to placeholders)
-- `MANAGER_PHONE_NUMBER` — For portal reschedule/cancel alerts
 
 ## Company Info
 

@@ -7,6 +7,7 @@ import GoogleMap from "@/components/GoogleMap";
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [liveHours, setLiveHours] = useState<{ isOpen: boolean | null; hours: string[]; openNow: string } | null>(null);
 
   useEffect(() => {
@@ -19,24 +20,33 @@ export default function ContactPage() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
+    setError("");
     const form = e.currentTarget;
     const data = new FormData(form);
     try {
-      await fetch("/api/ghl-lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: data.get("name"),
           phone: data.get("phone"),
           email: data.get("email"),
+          service: data.get("service"),
+          message: data.get("message"),
           source: "contact-form",
         }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || "Something went wrong. Please try again or call (808) 201-2668.");
+        return;
+      }
+      setSubmitted(true);
     } catch {
-      // still show success — lead logged server-side
+      setError("Something went wrong. Please try again or call (808) 201-2668.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
-    setSubmitted(true);
   }
 
   return (
@@ -154,11 +164,16 @@ export default function ContactPage() {
                   />
                 </div>
 
+                {error && (
+                  <p className="text-sm text-red-400 text-center">{error}</p>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full h-12 bg-brand-amber text-brand-dark font-heading font-semibold rounded-lg hover:bg-brand-amber-dark transition-colors text-lg"
+                  disabled={submitting}
+                  className="w-full h-12 bg-brand-amber text-brand-dark font-heading font-semibold rounded-lg hover:bg-brand-amber-dark transition-colors text-lg disabled:opacity-60"
                 >
-                  {submitted ? "Message Sent!" : "Send Message"}
+                  {submitted ? "Message Sent!" : submitting ? "Sending..." : "Send Message"}
                 </button>
               </form>
             </div>
