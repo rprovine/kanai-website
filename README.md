@@ -33,13 +33,13 @@ Premium trade-company aesthetic. Dark theme, warm amber accents, Space Grotesk h
 - **AI Junk Estimator** — Photo-based instant estimates (embedded from kanai-estimator-tool)
 - **Quick Quote Widget** — Item picker with live volume/price calculator
 - **Online Booking** — Multi-step flow for JR (requires estimate first) and DR (size/duration picker)
-- **Customer Portal** — Phone-verified login, real job status from Workiz, reschedule/cancel
+- **Customer Portal** — Phone-verified login, real job status from Workiz (sign-in codes are not texted since GHL was removed)
 - **20 Neighborhood SEO Pages** — ISR-generated local pages for Oahu coverage
 - **Live Stats** — Real job counts and tonnage from Supabase EOD data
 - **Google Reviews** — Live review wall from Places API with fallback
 
 ### Integrations
-- **GoHighLevel** — Lead capture, SMS verification, contact notes
+- **Holo (kanai-dispatch)** — Lead capture (`/api/lead`), dumpster booking tasks + payment links
 - **Workiz** — Customer job lookup for portal
 - **CallRail** — Dynamic phone number swap for call attribution
 - **Google Maps** — Embedded maps on contact and service area pages
@@ -88,13 +88,11 @@ Set in Vercel project settings:
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `GHL_API_KEY` | Yes | GHL API for leads + SMS |
-| `GHL_LOCATION_ID` | Yes | GHL location ID |
+| `HOLO_WEB_FORM_TOKEN` | Yes | Holo lead intake (`/api/webhooks/web-form`); must equal Holo's `WEB_FORM_WEBHOOK_TOKEN` |
 | `WORKIZ_API_TOKEN` | Yes | Workiz job lookup |
 | `SUPABASE_URL` | Yes | Database connection |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Database auth |
 | `GOOGLE_PLACES_API_KEY` | No | Live Google reviews |
-| `MANAGER_PHONE_NUMBER` | No | Portal action alerts |
 
 ## Company
 

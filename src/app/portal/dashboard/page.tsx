@@ -129,6 +129,8 @@ export default function PortalDashboard() {
         setExtendDays(7);
         setNewDate("");
         setNewTime("");
+      } else if (data.error) {
+        alert(data.error);
       }
     } catch {
       // silent
